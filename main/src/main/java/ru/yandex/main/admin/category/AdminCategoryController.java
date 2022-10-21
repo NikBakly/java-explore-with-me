@@ -1,9 +1,10 @@
-package ru.yandex.main.admin.controllers;
+package ru.yandex.main.admin.category;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.main.admin.services.AdminCategoryService;
 import ru.yandex.main.category.Category;
+import ru.yandex.main.category.CategoryDto;
+import ru.yandex.main.category.NewCategoryDto;
 
 @RestController
 @RequiredArgsConstructor
@@ -12,15 +13,15 @@ public class AdminCategoryController {
     private final AdminCategoryService adminCategoryService;
 
     @PatchMapping
-    Category updateCategory(
+    CategoryDto updateCategory(
             @RequestBody Category updatedCategory
     ) {
         return adminCategoryService.updateCategory(updatedCategory);
     }
 
     @PostMapping
-    Category createCategory(
-            @RequestBody Category newCategory
+    CategoryDto createCategory(
+            @RequestBody NewCategoryDto newCategory
     ) {
         return adminCategoryService.createCategory(newCategory);
     }

@@ -1,6 +1,7 @@
-package ru.yandex.main.admin.services;
+package ru.yandex.main.admin.event;
 
-import ru.yandex.main.event.Event;
+import ru.yandex.main.event.AdminUpdateEventRequest;
+import ru.yandex.main.event.EventFullDto;
 
 import java.util.List;
 
@@ -18,7 +19,7 @@ public interface AdminEventService {
      * @param size       количество событий в наборе
      * @return Событие подходящие под параметры
      */
-    List<Event> findEvents(
+    List<EventFullDto> findEvents(
             int[] users,
             String[] states,
             int[] categories,
@@ -35,9 +36,9 @@ public interface AdminEventService {
      * @param event   данные для изменения информации о событии
      * @return Измененное событие
      */
-    Event updateEvent(
+    EventFullDto updateEvent(
             Long eventId,
-            Event event
+            AdminUpdateEventRequest event
     );
 
     /**
@@ -46,7 +47,7 @@ public interface AdminEventService {
      * @param eventId id события
      * @return Опубликованное событие
      */
-    Event publishEvent(
+    EventFullDto publishEvent(
             Long eventId
     );
 
@@ -56,7 +57,7 @@ public interface AdminEventService {
      * @param eventId id события
      * @return Отклоненное событие
      */
-    Event rejectedEvent(
+    EventFullDto rejectedEvent(
             Long eventId
     );
 }

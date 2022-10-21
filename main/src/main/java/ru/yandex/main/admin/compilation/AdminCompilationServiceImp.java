@@ -1,10 +1,11 @@
-package ru.yandex.main.admin.services;
+package ru.yandex.main.admin.compilation;
 
-import ru.yandex.main.compilation.Compilation;
+import ru.yandex.main.compilation.CompilationDto;
+import ru.yandex.main.compilation.NewCompilationDto;
 
 public class AdminCompilationServiceImp implements AdminCompilationService {
     @Override
-    public Compilation createCompilation(Compilation compilation) {
+    public CompilationDto createCompilation(NewCompilationDto compilation) {
         return null;
     }
 

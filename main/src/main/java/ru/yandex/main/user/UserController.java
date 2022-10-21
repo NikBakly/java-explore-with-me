@@ -2,7 +2,7 @@ package ru.yandex.main.user;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.main.event.Event;
+import ru.yandex.main.event.*;
 
 import java.util.List;
 
@@ -13,7 +13,7 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping("/events")
-    public List<Event> findUserEventsByUserId(
+    public List<EventShortDto> findUserEventsByUserId(
             @PathVariable Long userId,
             @RequestParam(name = "from", required = false) Integer from,
             @RequestParam(name = "size", required = false) Integer size
@@ -22,7 +22,7 @@ public class UserController {
     }
 
     @PatchMapping("/events")
-    public Event updateUserEventByUserId(
+    public UpdateEventRequest updateUserEventByUserId(
             @PathVariable Long userId,
             @RequestBody Event event
     ) {
@@ -30,15 +30,15 @@ public class UserController {
     }
 
     @PostMapping("/events")
-    public Event createUserEvent(
+    public EventFullDto createUserEvent(
             @PathVariable Long userId,
-            @RequestBody Event event
+            @RequestBody NewEventDto event
     ) {
         return userService.createUserEvent(userId, event);
     }
 
     @GetMapping("/events/{eventId}")
-    public Event findUserEventByUserIdAndByEventId(
+    public EventFullDto findUserEventByUserIdAndByEventId(
             @PathVariable Long userId,
             @PathVariable Long eventId
     ) {
@@ -47,7 +47,7 @@ public class UserController {
     }
 
     @PatchMapping("/events/{eventId}")
-    public Event eventCancellation(
+    public EventFullDto eventCancellation(
             @PathVariable Long userId,
             @PathVariable Long eventId
     ) {
@@ -55,7 +55,7 @@ public class UserController {
     }
 
     @GetMapping("/events/{eventId}/requests")
-    public Request findUserRequestById(
+    public ParticipationRequestDto findUserRequestById(
             @PathVariable Long userId,
             @PathVariable Long eventId
     ) {
@@ -63,7 +63,7 @@ public class UserController {
     }
 
     @PatchMapping("/events/{eventId}/requests/{reqId}/confirm")
-    public Request confirmRequestById(
+    public ParticipationRequestDto confirmRequestById(
             @PathVariable Long userId,
             @PathVariable Long eventId,
             @PathVariable("reqId") Long requestId
@@ -72,7 +72,7 @@ public class UserController {
     }
 
     @PatchMapping("/events/{eventId}/requests/{reqId}/reject")
-    public Request rejectRequestById(
+    public ParticipationRequestDto rejectRequestById(
             @PathVariable Long userId,
             @PathVariable Long eventId,
             @PathVariable("reqId") Long requestId
@@ -81,14 +81,14 @@ public class UserController {
     }
 
     @GetMapping("/requests")
-    public List<Request> findRequestsById(
+    public List<ParticipationRequestDto> findRequestsById(
             @PathVariable Long userId
     ) {
         return userService.findRequestsById(userId);
     }
 
     @PostMapping("/requests")
-    public Request createRequest(
+    public ParticipationRequestDto createRequest(
             @PathVariable Long userId,
             @RequestParam(name = "eventId", required = false) Long eventId
     ) {
@@ -96,7 +96,7 @@ public class UserController {
     }
 
     @PostMapping("/requests/{requestId}/cancel")
-    public Request cancelRequest(
+    public ParticipationRequestDto cancelRequest(
             @PathVariable Long userId,
             @PathVariable Long requestId
     ) {

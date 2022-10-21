@@ -1,6 +1,6 @@
 package ru.yandex.main.user;
 
-import ru.yandex.main.event.Event;
+import ru.yandex.main.event.*;
 
 import java.util.List;
 
@@ -14,7 +14,7 @@ public interface UserService {
      * @param size   количество элементов в наборе;
      * @return События, добавленные текущим пользователем
      */
-    List<Event> findUserEventsById(
+    List<EventShortDto> findUserEventsById(
             Long userId,
             Integer from,
             Integer size
@@ -27,7 +27,7 @@ public interface UserService {
      * @param event  обновленная сущность;
      * @return Измененное событие
      */
-    Event updateUserEventById(
+    UpdateEventRequest updateUserEventById(
             Long userId,
             Event event
     );
@@ -39,9 +39,9 @@ public interface UserService {
      * @param event  сущность, добавляемая пользователем;
      * @return Добавленное новое событие.
      */
-    Event createUserEvent(
+    EventFullDto createUserEvent(
             Long userId,
-            Event event
+            NewEventDto event
     );
 
     /**
@@ -51,7 +51,7 @@ public interface UserService {
      * @param eventId id событие
      * @return Запрошенное событие
      */
-    Event findUserEventByUserIdAndByEventId(
+    EventFullDto findUserEventByUserIdAndByEventId(
             Long userId,
             Long eventId
     );
@@ -63,7 +63,7 @@ public interface UserService {
      * @param eventId id отменяемого события
      * @return Отменное событие
      */
-    Event eventCancellation(
+    EventFullDto eventCancellation(
             Long userId,
             Long eventId
     );
@@ -75,7 +75,7 @@ public interface UserService {
      * @param eventId id события
      * @return Запрошенный запрос
      */
-    Request findUserRequestById(
+    ParticipationRequestDto findUserRequestById(
             Long userId,
             Long eventId
     );
@@ -88,7 +88,7 @@ public interface UserService {
      * @param requestId id заявки, которую подтверждает текущий пользователь
      * @return Подтвержденная чужая заявки на участие в событии текущего пользователя
      */
-    Request confirmRequestById(
+    ParticipationRequestDto confirmRequestById(
             Long userId,
             Long eventId,
             Long requestId
@@ -102,7 +102,7 @@ public interface UserService {
      * @param requestId id заявки, которую подтверждает текущий пользователь
      * @return Подтвержденная чужая заявки на участие в событии текущего пользователя
      */
-    Request rejectRequestById(
+    ParticipationRequestDto rejectRequestById(
             Long userId,
             Long eventId,
             Long requestId
@@ -114,7 +114,7 @@ public interface UserService {
      * @param userId id текущего пользователя
      * @return Заявки текущего пользователя
      */
-    List<Request> findRequestsById(
+    List<ParticipationRequestDto> findRequestsById(
             Long userId
     );
 
@@ -125,7 +125,7 @@ public interface UserService {
      * @param eventId id события
      * @return Добавленный запрос
      */
-    Request createRequest(
+    ParticipationRequestDto createRequest(
             Long userId,
             Long eventId
     );
@@ -137,7 +137,7 @@ public interface UserService {
      * @param requestId id запроса на участие
      * @return Отмененный запрос
      */
-    Request cancelRequest(
+    ParticipationRequestDto cancelRequest(
             Long userId,
             Long requestId
     );

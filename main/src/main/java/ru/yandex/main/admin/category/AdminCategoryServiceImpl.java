@@ -1,15 +1,17 @@
-package ru.yandex.main.admin.services;
+package ru.yandex.main.admin.category;
 
 import ru.yandex.main.category.Category;
+import ru.yandex.main.category.CategoryDto;
+import ru.yandex.main.category.NewCategoryDto;
 
 public class AdminCategoryServiceImpl implements AdminCategoryService {
     @Override
-    public Category updateCategory(Category category) {
+    public CategoryDto updateCategory(Category category) {
         return null;
     }
 
     @Override
-    public Category createCategory(Category category) {
+    public CategoryDto createCategory(NewCategoryDto category) {
         return null;
     }
 

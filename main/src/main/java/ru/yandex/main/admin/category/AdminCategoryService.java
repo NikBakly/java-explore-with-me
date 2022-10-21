@@ -1,6 +1,8 @@
-package ru.yandex.main.admin.services;
+package ru.yandex.main.admin.category;
 
 import ru.yandex.main.category.Category;
+import ru.yandex.main.category.CategoryDto;
+import ru.yandex.main.category.NewCategoryDto;
 
 public interface AdminCategoryService {
 
@@ -10,7 +12,7 @@ public interface AdminCategoryService {
      * @param category данные категории для изменения
      * @return Измененная категория
      */
-    Category updateCategory(
+    CategoryDto updateCategory(
             Category category
     );
 
@@ -20,8 +22,8 @@ public interface AdminCategoryService {
      * @param category данные добавляемой категории
      * @return Добавленная категория
      */
-    Category createCategory(
-            Category category
+    CategoryDto createCategory(
+            NewCategoryDto category
     );
 
     /**

@@ -12,7 +12,7 @@ public class CompilationController {
     private final CompilationService compilationService;
 
     @GetMapping
-    public List<Compilation> getAll(
+    public List<CompilationDto> getAll(
             @RequestParam(name = "pinned", required = false) Boolean pinned,
             @RequestParam(name = "from", required = false) Integer from,
             @RequestParam(name = "size", required = false) Integer size
@@ -21,7 +21,7 @@ public class CompilationController {
     }
 
     @GetMapping("/{compId}")
-    public Compilation findById(@PathVariable("compId") Long compilationId) {
+    public CompilationDto findById(@PathVariable("compId") Long compilationId) {
         return compilationService.findById(compilationId);
     }
 }

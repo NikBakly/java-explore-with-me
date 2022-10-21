@@ -1,18 +1,20 @@
-package ru.yandex.main.admin.services;
+package ru.yandex.main.admin.user;
 
 import org.springframework.stereotype.Service;
-import ru.yandex.main.user.User;
+import ru.yandex.main.user.NewUserRequest;
+import ru.yandex.main.user.UserDto;
+
+import java.util.List;
 
 @Service
 public class AdminUserServiceImpl implements AdminUserService {
-
     @Override
-    public User updateUser(User user) {
+    public List<UserDto> findById(int[] ids, Integer from, Integer size) {
         return null;
     }
 
     @Override
-    public User createUser(User user) {
+    public UserDto createUser(NewUserRequest user) {
         return null;
     }
 

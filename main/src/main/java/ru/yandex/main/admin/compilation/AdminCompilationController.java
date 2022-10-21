@@ -1,9 +1,9 @@
-package ru.yandex.main.admin.controllers;
+package ru.yandex.main.admin.compilation;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.main.admin.services.AdminCompilationService;
-import ru.yandex.main.compilation.Compilation;
+import ru.yandex.main.compilation.CompilationDto;
+import ru.yandex.main.compilation.NewCompilationDto;
 
 @RestController
 @RequiredArgsConstructor
@@ -12,8 +12,8 @@ public class AdminCompilationController {
     private final AdminCompilationService adminCompilationService;
 
     @PostMapping
-    public Compilation createCompilation(
-            @RequestBody Compilation compilation
+    public CompilationDto createCompilation(
+            @RequestBody NewCompilationDto compilation
     ) {
         return adminCompilationService.createCompilation(compilation);
     }

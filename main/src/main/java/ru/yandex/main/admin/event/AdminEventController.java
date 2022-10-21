@@ -1,9 +1,9 @@
-package ru.yandex.main.admin.controllers;
+package ru.yandex.main.admin.event;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.main.admin.services.AdminEventService;
-import ru.yandex.main.event.Event;
+import ru.yandex.main.event.AdminUpdateEventRequest;
+import ru.yandex.main.event.EventFullDto;
 
 import java.util.List;
 
@@ -14,7 +14,7 @@ public class AdminEventController {
     private final AdminEventService adminEventService;
 
     @GetMapping
-    public List<Event> findEvents(
+    public List<EventFullDto> findEvents(
             @RequestParam(name = "users", required = false) int[] users,
             @RequestParam(name = "states", required = false) String[] states,
             @RequestParam(name = "categories", required = false) int[] categories,
@@ -35,9 +35,9 @@ public class AdminEventController {
     }
 
     @PutMapping("/{eventId}")
-    public Event updateEvent(
+    public EventFullDto updateEvent(
             @PathVariable Long eventId,
-            @RequestBody Event event
+            @RequestBody AdminUpdateEventRequest event
     ) {
         return adminEventService.updateEvent(
                 eventId,
@@ -46,7 +46,7 @@ public class AdminEventController {
     }
 
     @PatchMapping("/{eventId}/publish")
-    public Event publishEvent(
+    public EventFullDto publishEvent(
             @PathVariable Long eventId
     ) {
         return adminEventService.publishEvent(
@@ -55,7 +55,7 @@ public class AdminEventController {
     }
 
     @PatchMapping("/{eventId}/rejected")
-    public Event rejectedEvent(
+    public EventFullDto rejectedEvent(
             @PathVariable Long eventId
     ) {
         return adminEventService.rejectedEvent(

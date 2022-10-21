@@ -1,64 +1,64 @@
 package ru.yandex.main.user;
 
 import org.springframework.stereotype.Service;
-import ru.yandex.main.event.Event;
+import ru.yandex.main.event.*;
 
 import java.util.List;
 
 @Service
 public class UserServiceImpl implements UserService {
     @Override
-    public List<Event> findUserEventsById(Long userId, Integer from, Integer size) {
+    public List<EventShortDto> findUserEventsById(Long userId, Integer from, Integer size) {
         return null;
     }
 
     @Override
-    public Event updateUserEventById(Long userId, Event event) {
+    public UpdateEventRequest updateUserEventById(Long userId, Event event) {
         return null;
     }
 
     @Override
-    public Event createUserEvent(Long userId, Event event) {
+    public EventFullDto createUserEvent(Long userId, NewEventDto event) {
         return null;
     }
 
     @Override
-    public Event findUserEventByUserIdAndByEventId(Long userId, Long eventId) {
+    public EventFullDto findUserEventByUserIdAndByEventId(Long userId, Long eventId) {
         return null;
     }
 
     @Override
-    public Event eventCancellation(Long userId, Long eventId) {
+    public EventFullDto eventCancellation(Long userId, Long eventId) {
         return null;
     }
 
     @Override
-    public Request findUserRequestById(Long userId, Long eventId) {
+    public ParticipationRequestDto findUserRequestById(Long userId, Long eventId) {
         return null;
     }
 
     @Override
-    public Request confirmRequestById(Long userId, Long eventId, Long requestId) {
+    public ParticipationRequestDto confirmRequestById(Long userId, Long eventId, Long requestId) {
         return null;
     }
 
     @Override
-    public Request rejectRequestById(Long userId, Long eventId, Long requestId) {
+    public ParticipationRequestDto rejectRequestById(Long userId, Long eventId, Long requestId) {
         return null;
     }
 
     @Override
-    public List<Request> findRequestsById(Long userId) {
+    public List<ParticipationRequestDto> findRequestsById(Long userId) {
         return null;
     }
 
     @Override
-    public Request createRequest(Long userId, Long eventId) {
+    public ParticipationRequestDto createRequest(Long userId, Long eventId) {
         return null;
     }
 
     @Override
-    public Request cancelRequest(Long userId, Long requestId) {
+    public ParticipationRequestDto cancelRequest(Long userId, Long requestId) {
         return null;
     }
 }

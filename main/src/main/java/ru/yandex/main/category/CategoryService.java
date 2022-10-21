@@ -12,7 +12,7 @@ public interface CategoryService {
      * @param size количество категорий в наборе
      * @return Получение информации о категории по её идентификатору
      */
-    List<Category> getAll(Integer from, Integer size);
+    List<CategoryDto> getAll(Integer from, Integer size);
 
 
     /**
@@ -21,5 +21,5 @@ public interface CategoryService {
      * @param categoryId id категории
      * @return найденная категория
      */
-    Category findById(Integer categoryId);
+    CategoryDto findById(Integer categoryId);
 }

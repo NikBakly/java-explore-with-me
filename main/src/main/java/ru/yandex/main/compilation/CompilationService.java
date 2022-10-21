@@ -10,7 +10,7 @@ public interface CompilationService {
      * @param size   количество элементов в наборе
      * @return Получение подборок событий.
      */
-    List<Compilation> getAll(
+    List<CompilationDto> getAll(
             Boolean pinned,
             Integer from,
             Integer size
@@ -20,5 +20,5 @@ public interface CompilationService {
      * @param compilationId id подборки
      * @return Получение подборки событий по его id
      */
-    Compilation findById(Long compilationId);
+    CompilationDto findById(Long compilationId);
 }

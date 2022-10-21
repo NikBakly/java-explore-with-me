@@ -12,7 +12,7 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     @GetMapping
-    public List<Category> getAll(
+    public List<CategoryDto> getAll(
             @RequestParam(name = "from", required = false) Integer from,
             @RequestParam(name = "size", required = false) Integer size
     ) {
@@ -20,7 +20,7 @@ public class CategoryController {
     }
 
     @GetMapping("/{catId}")
-    public Category findById(
+    public CategoryDto findById(
             @PathVariable("catId") Integer categoryId
     ) {
         return categoryService.findById(categoryId);

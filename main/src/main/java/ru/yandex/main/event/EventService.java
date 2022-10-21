@@ -16,7 +16,7 @@ public interface EventService {
      * @param size          количество событий в наборе;
      * @return Получение событий с возможностью фильтрации.
      */
-    List<Event> getAll(
+    List<EventShortDto> getAll(
             String text,
             int[] arr,
             Boolean paid,
@@ -32,5 +32,5 @@ public interface EventService {
      * @param eventId id события;
      * @return Получение подробной информации об опубликованном событии по его идентификатору.
      */
-    Event findById(Long eventId);
+    EventFullDto findById(Long eventId);
 }

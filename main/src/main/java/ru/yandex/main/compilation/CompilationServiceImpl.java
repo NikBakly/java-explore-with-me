@@ -7,12 +7,12 @@ import java.util.List;
 @Service
 public class CompilationServiceImpl implements CompilationService {
     @Override
-    public List<Compilation> getAll(Boolean pinned, Integer from, Integer size) {
+    public List<CompilationDto> getAll(Boolean pinned, Integer from, Integer size) {
         return null;
     }
 
     @Override
-    public Compilation findById(Long compilationId) {
+    public CompilationDto findById(Long compilationId) {
         return null;
     }
 }

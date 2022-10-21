@@ -1,6 +1,7 @@
-package ru.yandex.main.admin.services;
+package ru.yandex.main.admin.compilation;
 
-import ru.yandex.main.compilation.Compilation;
+import ru.yandex.main.compilation.CompilationDto;
+import ru.yandex.main.compilation.NewCompilationDto;
 
 public interface AdminCompilationService {
 
@@ -10,8 +11,8 @@ public interface AdminCompilationService {
      * @param compilation данные новой подборки
      * @return Добавленная подборка
      */
-    Compilation createCompilation(
-            Compilation compilation
+    CompilationDto createCompilation(
+            NewCompilationDto compilation
     );
 
     /**

@@ -12,7 +12,7 @@ public class EventController {
     private final EventService eventService;
 
     @GetMapping
-    public List<Event> getAll(
+    public List<EventShortDto> getAll(
             @RequestParam(name = "text", required = false) String text,
             @RequestParam(name = "categories", required = false) int[] arr,
             @RequestParam(name = "paid", required = false) Boolean paid,
@@ -37,7 +37,7 @@ public class EventController {
     }
 
     @GetMapping("/{eventId}")
-    public Event findById(
+    public EventFullDto findById(
             @PathVariable("eventId") Long eventId
     ) {
         return eventService.findById(eventId);

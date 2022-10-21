@@ -8,12 +8,12 @@ import java.util.List;
 public class CategoryServiceImpl implements CategoryService {
 
     @Override
-    public List<Category> getAll(Integer from, Integer size) {
+    public List<CategoryDto> getAll(Integer from, Integer size) {
         return null;
     }
 
     @Override
-    public Category findById(Integer categoryId) {
+    public CategoryDto findById(Integer categoryId) {
         return null;
     }
 }
