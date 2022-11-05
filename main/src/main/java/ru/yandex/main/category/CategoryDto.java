@@ -1,15 +1,19 @@
 package ru.yandex.main.category;
 
 import lombok.Builder;
-import lombok.Data;
-import lombok.ToString;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
+import javax.validation.constraints.NotNull;
+
 @Builder
-@ToString
+@Getter
+@Setter
 public class CategoryDto {
     // Идентификатор категории
-    Long id;
+    @NotNull
+    private Long id;
     // Название категории
-    String name;
+    @NotNull
+    private String name;
 }

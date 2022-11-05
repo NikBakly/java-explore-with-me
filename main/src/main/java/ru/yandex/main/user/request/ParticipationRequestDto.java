@@ -1,4 +1,4 @@
-package ru.yandex.main.user;
+package ru.yandex.main.user.request;
 
 import lombok.Builder;
 import lombok.Data;
@@ -24,6 +24,6 @@ public class ParticipationRequestDto {
     Long requester;
 
     // Статус заявки
-    String status;
+    StatusRequests status;
 
 }

@@ -9,28 +9,28 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("admin/users")
+@RequestMapping("/admin/users")
 public class AdminUserController {
     private final AdminUserService adminUserService;
 
     @GetMapping
     List<UserDto> findById(
-            @RequestParam(name = "ids", required = false) int[] ids,
-            @RequestParam(name = "from", required = false) Integer from,
-            @RequestParam(name = "size", required = false) Integer size
+            @RequestParam(name = "ids") List<Long> ids,
+            @RequestParam(name = "from", defaultValue = "0") Integer from,
+            @RequestParam(name = "size", defaultValue = "10") Integer size
     ) {
         return adminUserService.findById(ids, from, size);
     }
 
     @PostMapping
-    UserDto createCategory(
+    UserDto createUser(
             @RequestBody NewUserRequest newUser
     ) {
         return adminUserService.createUser(newUser);
     }
 
     @DeleteMapping("/{userId}")
-    void deleteCategoryById(
+    void deleteUserById(
             @PathVariable Long userId
     ) {
         adminUserService.deleteUser(userId);

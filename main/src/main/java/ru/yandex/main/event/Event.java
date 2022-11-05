@@ -5,8 +5,10 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import ru.yandex.main.category.Category;
+import ru.yandex.main.user.User;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "events")
@@ -16,45 +18,62 @@ import javax.persistence.*;
 public class Event {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long id;
+    private Long id;
 
     // Краткое описание события
-    String annotation;
+    private String annotation;
 
     // id категории к которой относится событие
-    @ManyToOne
-    @JoinColumn(name = "id", nullable = false)
-    Category category;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id")
+    @ToString.Exclude
+    private Category category;
 
     // id пользователя
-    Long initiatorId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "initiator_id")
+    @ToString.Exclude
+    private User initiator;
 
     // Полное описание события
-    String description;
+    private String description;
 
     // Дата и время на которые намечено событие
-    String eventDate;
+    @Column(name = "event_date")
+    private LocalDateTime eventDate;
+
+    // Дата и время создания события
+    @Column(name = "create_on")
+    private LocalDateTime createdOn;
+
+    // Дата и время публикации события
+    @Column(name = "published_on")
+    private LocalDateTime publishedOn;
 
     // широта место провидения
-    Double lat;
+    private Double lat;
 
     // Долгота место проведения
-    Double lon;
+    private Double lon;
 
     // Нужно ли оплачивать участие в событии
-    @Builder.Default
-    Boolean paid = false;
+    private Boolean paid;
 
     // Ограничение на количество участников. Значение 0 - означает отсутствие ограничения
-    @Builder.Default
-    Integer participantLimit = 0;
+    @Column(name = "participant_limit")
+    private Long participantLimit;
 
     // Нужна ли пре-модерация заявок на участие.
     // Если true, то все заявки будут ожидать подтверждения инициатором события.
     // Если false - то будут подтверждаться автоматически.
+    @Column(name = "request_moderation")
+    private Boolean requestModeration;
+
+    // Список состояний жизненного цикла события
+    @Enumerated(EnumType.STRING)
     @Builder.Default
-    Boolean requestModeration = true;
+    private State state = State.PENDING;
 
     // Заголовок события
-    String title;
+    private String title;
 }

@@ -1,57 +1,55 @@
 package ru.yandex.main.event;
 
-import lombok.Builder;
-import lombok.Data;
-import lombok.ToString;
+import lombok.Getter;
+import lombok.Setter;
 import ru.yandex.main.Location;
 import ru.yandex.main.category.CategoryDto;
 import ru.yandex.main.user.UserShortDto;
 
-@Data
-@Builder
-@ToString
+@Getter
+@Setter
 public class EventFullDto {
     // Кратное описание
-    String annotation;
+    private String annotation;
 
-    CategoryDto category;
+    private CategoryDto category;
 
     // Количество одобренных заявок на участие в данном событии
-    Long confirmedRequests;
+    private Long confirmedRequests;
 
     // Дата и время создания события
-    String createdOn;
+    private String createdOn;
 
     // Полное описание события
-    String description;
+    private String description;
 
     // Дата и время на которые намечено событие
-    String eventDate;
+    private String eventDate;
 
-    Long id;
+    private Long id;
 
-    UserShortDto initiator;
+    private UserShortDto initiator;
 
-    Location location;
+    private Location location;
 
     // Нужно ли оплачивать участие
-    Boolean paid;
+    private Boolean paid;
 
     // Ограничение на количество участников. Значение 0 - означает отсутствие ограничения
-    Integer participantLimit;
+    private Long participantLimit;
 
     // Дата и время публикации события
-    String publishedOn;
+    private String publishedOn;
 
     // Нужна ли пре-модерация заявок на участие
-    Boolean requestModeration;
+    private Boolean requestModeration;
 
     // Список состояний жизненного цикла события
-    State state;
+    private State state;
 
     // Заголовок
-    String title;
+    private String title;
 
     // Количество просмотрев события
-    Long views;
+    private Long views;
 }

@@ -1,8 +1,9 @@
 package ru.yandex.main.admin.category;
 
-import ru.yandex.main.category.Category;
 import ru.yandex.main.category.CategoryDto;
 import ru.yandex.main.category.NewCategoryDto;
+
+import javax.validation.Valid;
 
 public interface AdminCategoryService {
 
@@ -13,7 +14,7 @@ public interface AdminCategoryService {
      * @return Измененная категория
      */
     CategoryDto updateCategory(
-            Category category
+            @Valid CategoryDto updatedCategory
     );
 
     /**
@@ -23,7 +24,7 @@ public interface AdminCategoryService {
      * @return Добавленная категория
      */
     CategoryDto createCategory(
-            NewCategoryDto category
+            @Valid NewCategoryDto newCategoryDto
     );
 
     /**

@@ -3,7 +3,13 @@ package ru.yandex.main.event;
 import lombok.Builder;
 import lombok.Data;
 import lombok.ToString;
+import org.hibernate.validator.constraints.Length;
+import ru.yandex.main.GlobalVariable;
 import ru.yandex.main.Location;
+
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 
 /**
  * Новое событие
@@ -13,32 +19,45 @@ import ru.yandex.main.Location;
 @ToString
 public class NewEventDto {
     // Краткое описание события
-    String annotation;
+    @Length(min = 20, max = 2000, message = "The title field must be between 3 and 120 in length")
+    @NotBlank
+    private String annotation;
 
     // id категории к которой относится событие
-    Long category;
+    @NotBlank(message = "The category field cannot be undefined")
+    private Long category;
 
     // Полное описание события
-    String description;
+    @Length(min = 20, max = 7000, message = "The description field must be between 3 and 120 in length")
+    @NotBlank(message = "The description field cannot be undefined")
+    private String description;
 
     // Дата и время на которые намечено событие
-    String eventDate;
+    @Pattern(regexp = GlobalVariable.PATTERN_DATE, message = "The event date field must be in a special format.")
+    @NotBlank(message = "The event date field cannot be undefined")
+    private String eventDate;
 
     // Место проведения события
-    Location location;
+    @NotNull(message = "The Location field cannot be undefined")
+    private Location location;
 
     // Нужно ли оплачивать участие в событии
-    Boolean paid;
+    @Builder.Default
+    private Boolean paid = false;
 
     // Ограничение на количество участников. Значение 0 - означает отсутствие ограничения
-    Integer participantLimit;
+    @Builder.Default
+    private Long participantLimit = 0L;
 
     // Нужна ли пре-модерация заявок на участие.
     // Если true, то все заявки будут ожидать подтверждения инициатором события.
     // Если false - то будут подтверждаться автоматически.
-    Boolean requestModeration;
+    @Builder.Default
+    private Boolean requestModeration = true;
 
     // Заголовок события
-    String title;
+    @Length(min = 3, max = 120, message = "The title field must be between 3 and 120 in length")
+    @NotBlank(message = "The title field cannot be blank")
+    private String title;
 
 }

@@ -1,5 +1,6 @@
 package ru.yandex.main.event;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
 import lombok.Data;
 import lombok.ToString;
@@ -9,6 +10,7 @@ import ru.yandex.main.user.UserShortDto;
 @Data
 @Builder
 @ToString
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class EventShortDto {
     // Кратное описание
     String annotation;
@@ -17,9 +19,6 @@ public class EventShortDto {
 
     // Количество одобренных заявок на участие в данном событии
     Long confirmedRequests;
-
-    // Дата и время создания события
-    String createdOn;
 
     // Дата и время на которые намечено событие
     String eventDate;

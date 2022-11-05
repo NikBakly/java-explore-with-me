@@ -7,7 +7,7 @@ import ru.yandex.main.compilation.NewCompilationDto;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("admin/compilations")
+@RequestMapping("/admin/compilations")
 public class AdminCompilationController {
     private final AdminCompilationService adminCompilationService;
 
@@ -30,7 +30,7 @@ public class AdminCompilationController {
             @PathVariable("comId") Long compilationId,
             @PathVariable Long eventId
     ) {
-        adminCompilationService.deleteEventFromCompilation(compilationId, eventId);
+        adminCompilationService.deleteEventByIdFromCompilationById(compilationId, eventId);
     }
 
     @PatchMapping("/{comId}/events/{eventId}")

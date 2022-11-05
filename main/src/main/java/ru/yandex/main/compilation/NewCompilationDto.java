@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.ToString;
 
+import javax.validation.constraints.NotBlank;
 import java.util.List;
 
 /**
@@ -14,11 +15,13 @@ import java.util.List;
 @ToString
 public class NewCompilationDto {
     // Список идентификаторов событий входящих в подборку
-    List<Long> events;
+    private List<Long> events;
 
     // Закреплена ли подборка на главной странице сайта
-    Boolean pinned;
+    @Builder.Default
+    private Boolean pinned = Boolean.FALSE;
 
     // Заголовок подборки
-    String title;
+    @NotBlank
+    private String title;
 }

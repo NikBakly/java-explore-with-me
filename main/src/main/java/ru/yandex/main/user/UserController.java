@@ -2,7 +2,10 @@ package ru.yandex.main.user;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.main.event.*;
+import ru.yandex.main.event.EventFullDto;
+import ru.yandex.main.event.EventShortDto;
+import ru.yandex.main.event.NewEventDto;
+import ru.yandex.main.event.UpdateEventRequest;
 
 import java.util.List;
 
@@ -15,16 +18,16 @@ public class UserController {
     @GetMapping("/events")
     public List<EventShortDto> findUserEventsByUserId(
             @PathVariable Long userId,
-            @RequestParam(name = "from", required = false) Integer from,
-            @RequestParam(name = "size", required = false) Integer size
+            @RequestParam(name = "from", defaultValue = "0") Integer from,
+            @RequestParam(name = "size", defaultValue = "10") Integer size
     ) {
         return userService.findUserEventsById(userId, from, size);
     }
 
     @PatchMapping("/events")
-    public UpdateEventRequest updateUserEventByUserId(
+    public EventFullDto updateUserEventByUserId(
             @PathVariable Long userId,
-            @RequestBody Event event
+            @RequestBody UpdateEventRequest event
     ) {
         return userService.updateUserEventById(userId, event);
     }
@@ -52,54 +55,5 @@ public class UserController {
             @PathVariable Long eventId
     ) {
         return userService.eventCancellation(userId, eventId);
-    }
-
-    @GetMapping("/events/{eventId}/requests")
-    public ParticipationRequestDto findUserRequestById(
-            @PathVariable Long userId,
-            @PathVariable Long eventId
-    ) {
-        return userService.findUserRequestById(userId, eventId);
-    }
-
-    @PatchMapping("/events/{eventId}/requests/{reqId}/confirm")
-    public ParticipationRequestDto confirmRequestById(
-            @PathVariable Long userId,
-            @PathVariable Long eventId,
-            @PathVariable("reqId") Long requestId
-    ) {
-        return userService.confirmRequestById(userId, eventId, requestId);
-    }
-
-    @PatchMapping("/events/{eventId}/requests/{reqId}/reject")
-    public ParticipationRequestDto rejectRequestById(
-            @PathVariable Long userId,
-            @PathVariable Long eventId,
-            @PathVariable("reqId") Long requestId
-    ) {
-        return userService.rejectRequestById(userId, eventId, requestId);
-    }
-
-    @GetMapping("/requests")
-    public List<ParticipationRequestDto> findRequestsById(
-            @PathVariable Long userId
-    ) {
-        return userService.findRequestsById(userId);
-    }
-
-    @PostMapping("/requests")
-    public ParticipationRequestDto createRequest(
-            @PathVariable Long userId,
-            @RequestParam(name = "eventId", required = false) Long eventId
-    ) {
-        return userService.createRequest(userId, eventId);
-    }
-
-    @PostMapping("/requests/{requestId}/cancel")
-    public ParticipationRequestDto cancelRequest(
-            @PathVariable Long userId,
-            @PathVariable Long requestId
-    ) {
-        return userService.cancelRequest(userId, requestId);
     }
 }

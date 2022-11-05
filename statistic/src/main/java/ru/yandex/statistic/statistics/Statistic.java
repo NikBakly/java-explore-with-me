@@ -1,4 +1,4 @@
-package ru.yandex.statistic.endpointHit;
+package ru.yandex.statistic.statistics;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -8,25 +8,25 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "endpoint_hit")
+@Table(name = "statistics")
 @Getter
 @Setter
 @ToString
-public class EndpointHit {
+public class Statistic {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long id;
+    private Long id;
 
     // Идентификатор сервиса для которого записывается информация
-    String app;
+    private String app;
 
     // URI для которого был осуществлен запрос
-    String uri;
+    private String uri;
 
     // IP-адрес пользователя, осуществившего запрос
-    String ip;
+    private String ip;
 
     //Дата и время, когда был совершен запрос к эндпоинту (в формате "yyyy-MM-dd HH:mm:ss")
     @Column(name = "timestamp")
-    LocalDateTime time;
+    private LocalDateTime time;
 }

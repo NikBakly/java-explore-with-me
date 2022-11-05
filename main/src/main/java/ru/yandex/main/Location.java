@@ -1,13 +1,16 @@
 package ru.yandex.main;
 
+import lombok.Data;
+
 /**
  * Широта и долгота места проведения события
  */
+@Data
 public class Location {
     // Широта
-    Double lat;
+    private final Double lat;
 
     // Долгота
-    Double lon;
+    private final Double lon;
 
 }

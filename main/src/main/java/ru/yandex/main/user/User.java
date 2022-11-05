@@ -10,13 +10,13 @@ import javax.persistence.*;
 @Getter
 @Setter
 @ToString
-@Table(name = "user")
+@Table(name = "users")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long id;
+    private Long id;
 
-    String email;
+    private String email;
 
-    String name;
+    private String name;
 }

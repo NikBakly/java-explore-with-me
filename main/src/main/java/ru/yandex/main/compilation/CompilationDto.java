@@ -14,6 +14,8 @@ public class CompilationDto {
     // Список событий входящих в подборку
     List<EventShortDto> events;
 
+    Long id;
+
     // Закреплена ли подборка на главной странице сайта
     Boolean pinned;
 

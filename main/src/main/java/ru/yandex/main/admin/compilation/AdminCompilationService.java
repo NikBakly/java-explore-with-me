@@ -3,6 +3,8 @@ package ru.yandex.main.admin.compilation;
 import ru.yandex.main.compilation.CompilationDto;
 import ru.yandex.main.compilation.NewCompilationDto;
 
+import javax.validation.Valid;
+
 public interface AdminCompilationService {
 
     /**
@@ -12,7 +14,7 @@ public interface AdminCompilationService {
      * @return Добавленная подборка
      */
     CompilationDto createCompilation(
-            NewCompilationDto compilation
+            @Valid NewCompilationDto compilation
     );
 
     /**
@@ -30,7 +32,7 @@ public interface AdminCompilationService {
      * @param compilationId id подборки
      * @param eventId       id события
      */
-    void deleteEventFromCompilation(
+    void deleteEventByIdFromCompilationById(
             Long compilationId,
             Long eventId
     );

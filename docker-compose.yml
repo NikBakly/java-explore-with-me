@@ -1,31 +1,50 @@
 version: '3.1'
 services:
   stats-server:
+    build: ./statistic
+    container_name: stats-server_ewm
     ports:
       - "9090:9090"
     depends_on:
       - stats-db
+    entrypoint:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://stats-db:5432/statistic-db
+
 
   stats-db:
     image: postgres:14-alpine
+    container_name: statistic-db
+    ports:
+      - "5432:5432"
     environment:
-      POSTGRES_DB: "stats-db"
       POSTGRES_USER: "admin"
       POSTGRES_PASSWORD: "root"
-      ports:
-        "5432:5432"
+      POSTGRES_DB: "statistic-db"
+    volumes:
+      - .:/docker-entrypoint-initdb.d
 
   ewm-service:
+    build: ./main
+    container_name: ewm-service_ewm
     ports:
       - "8080:8080"
     depends_on:
       - ewm-db
+      - stats-server
+    entrypoint:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://ewm-db:5442/main-db
+      - EXPLORE_STATISTIC_URL=http://stats-server:9090
+
 
   ewm-db:
     image: postgres:14-alpine
+    container_name: main-db
+    command: postgres -c port=5442
+    ports:
+      - "5442:5442"
     environment:
-      POSTGRES_DB: "ewm-db"
       POSTGRES_USER: "admin"
       POSTGRES_PASSWORD: "root"
-      ports:
-        "5442:5442"
+      POSTGRES_DB: "main-db"
+    volumes:
+      - .:/docker-entrypoint-initdb.d

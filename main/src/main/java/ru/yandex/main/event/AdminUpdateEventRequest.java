@@ -3,8 +3,10 @@ package ru.yandex.main.event;
 import lombok.Builder;
 import lombok.Data;
 import lombok.ToString;
+import ru.yandex.main.GlobalVariable;
 import ru.yandex.main.Location;
-import ru.yandex.main.category.CategoryDto;
+
+import javax.validation.constraints.Pattern;
 
 @Data
 @Builder
@@ -13,12 +15,13 @@ public class AdminUpdateEventRequest {
     // Кратное описание
     String annotation;
 
-    CategoryDto category;
+    Long category;
 
     // Полное описание события
     String description;
 
     // Дата и время на которые намечено событие
+    @Pattern(regexp = GlobalVariable.PATTERN_DATE, message = "The event date field must be in a special format.")
     String eventDate;
 
     Location location;
@@ -27,7 +30,7 @@ public class AdminUpdateEventRequest {
     Boolean paid;
 
     // Ограничение на количество участников. Значение 0 - означает отсутствие ограничения
-    Integer participantLimit;
+    Long participantLimit;
 
     // Нужна ли пре-модерация заявок на участие
     Boolean requestModeration;

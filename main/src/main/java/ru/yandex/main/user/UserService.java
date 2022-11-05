@@ -1,7 +1,12 @@
 package ru.yandex.main.user;
 
-import ru.yandex.main.event.*;
+import ru.yandex.main.event.EventFullDto;
+import ru.yandex.main.event.EventShortDto;
+import ru.yandex.main.event.NewEventDto;
+import ru.yandex.main.event.UpdateEventRequest;
 
+import javax.validation.Valid;
+import javax.validation.constraints.Min;
 import java.util.List;
 
 public interface UserService {
@@ -16,7 +21,9 @@ public interface UserService {
      */
     List<EventShortDto> findUserEventsById(
             Long userId,
+            @Min(value = 0, message = "The from field cannot be negative")
             Integer from,
+            @Min(value = 1, message = "The size field cannot be negative or zero")
             Integer size
     );
 
@@ -27,9 +34,9 @@ public interface UserService {
      * @param event  обновленная сущность;
      * @return Измененное событие
      */
-    UpdateEventRequest updateUserEventById(
+    EventFullDto updateUserEventById(
             Long userId,
-            Event event
+            @Valid UpdateEventRequest event
     );
 
     /**
@@ -41,7 +48,7 @@ public interface UserService {
      */
     EventFullDto createUserEvent(
             Long userId,
-            NewEventDto event
+            @Valid NewEventDto newEventDto
     );
 
     /**
@@ -67,79 +74,4 @@ public interface UserService {
             Long userId,
             Long eventId
     );
-
-    /**
-     * Получение информации о запросах на участие в событии текущего пользователя.
-     *
-     * @param userId  id текущего пользователя
-     * @param eventId id события
-     * @return Запрошенный запрос
-     */
-    ParticipationRequestDto findUserRequestById(
-            Long userId,
-            Long eventId
-    );
-
-    /**
-     * Подтверждение чужой заявки на участие в событии текущего пользователя.
-     *
-     * @param userId    id текущего пользователя
-     * @param eventId   id событие текущего пользователя
-     * @param requestId id заявки, которую подтверждает текущий пользователь
-     * @return Подтвержденная чужая заявки на участие в событии текущего пользователя
-     */
-    ParticipationRequestDto confirmRequestById(
-            Long userId,
-            Long eventId,
-            Long requestId
-    );
-
-    /**
-     * Отклонение чужой заявки на участие в событии текущего пользователя.
-     *
-     * @param userId    id текущего пользователя
-     * @param eventId   id событие текущего пользователя
-     * @param requestId id заявки, которую подтверждает текущий пользователь
-     * @return Подтвержденная чужая заявки на участие в событии текущего пользователя
-     */
-    ParticipationRequestDto rejectRequestById(
-            Long userId,
-            Long eventId,
-            Long requestId
-    );
-
-    /**
-     * Получение информации о заявках текущего пользователя на участие в чужих событиях.
-     *
-     * @param userId id текущего пользователя
-     * @return Заявки текущего пользователя
-     */
-    List<ParticipationRequestDto> findRequestsById(
-            Long userId
-    );
-
-    /**
-     * Добавление запроса от текущего пользователя на участие в событии.
-     *
-     * @param userId  id текущего пользователя
-     * @param eventId id события
-     * @return Добавленный запрос
-     */
-    ParticipationRequestDto createRequest(
-            Long userId,
-            Long eventId
-    );
-
-    /**
-     * Отмена своего запроса на участие в событии
-     *
-     * @param userId    id текущего пользователя
-     * @param requestId id запроса на участие
-     * @return Отмененный запрос
-     */
-    ParticipationRequestDto cancelRequest(
-            Long userId,
-            Long requestId
-    );
-
 }

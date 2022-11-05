@@ -3,6 +3,8 @@ package ru.yandex.main.admin.user;
 import ru.yandex.main.user.NewUserRequest;
 import ru.yandex.main.user.UserDto;
 
+import javax.validation.Valid;
+import javax.validation.constraints.Min;
 import java.util.List;
 
 public interface AdminUserService {
@@ -15,8 +17,10 @@ public interface AdminUserService {
      * @return найденные файлы
      */
     List<UserDto> findById(
-            int[] ids,
+            List<Long> ids,
+            @Min(value = 0, message = "The from field cannot be negative")
             Integer from,
+            @Min(value = 1, message = "The size field cannot be negative or zero")
             Integer size
     );
 
@@ -27,7 +31,7 @@ public interface AdminUserService {
      * @return Добавленный пользователь
      */
     UserDto createUser(
-            NewUserRequest user
+            @Valid NewUserRequest user
     );
 
     /**
