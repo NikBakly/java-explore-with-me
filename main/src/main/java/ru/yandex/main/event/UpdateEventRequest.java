@@ -19,7 +19,7 @@ public class UpdateEventRequest {
     private Long category;
 
     // Полное описание события
-    @Length(min = 20, max = 7000, message = "The description field should be between 20 and 2000 in length")
+    @Length(min = 20, max = 7000, message = "The description field should be between 20 and 7000 in length")
     private String description;
 
     // Дата и время на которые намечено событие
@@ -36,6 +36,6 @@ public class UpdateEventRequest {
     private Long participantLimit;
 
     // Заголовок
-    @Length(min = 3, max = 120, message = "The title field should be between 20 and 2000 in length")
+    @Length(min = 3, max = 120, message = "The title field should be between 3 and 120 in length")
     private String title;
 }

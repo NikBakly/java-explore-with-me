@@ -19,7 +19,7 @@ import javax.validation.constraints.Pattern;
 @ToString
 public class NewEventDto {
     // Краткое описание события
-    @Length(min = 20, max = 2000, message = "The title field must be between 3 and 120 in length")
+    @Length(min = 20, max = 2000, message = "The title field must be between 20 and 2000 in length")
     @NotBlank
     private String annotation;
 
@@ -28,7 +28,7 @@ public class NewEventDto {
     private Long category;
 
     // Полное описание события
-    @Length(min = 20, max = 7000, message = "The description field must be between 3 and 120 in length")
+    @Length(min = 20, max = 7000, message = "The description field must be between 20 and 7000 in length")
     @NotBlank(message = "The description field cannot be undefined")
     private String description;
 

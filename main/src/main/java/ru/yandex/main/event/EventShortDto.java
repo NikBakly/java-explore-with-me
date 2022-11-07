@@ -6,6 +6,9 @@ import lombok.Data;
 import lombok.ToString;
 import ru.yandex.main.category.CategoryDto;
 import ru.yandex.main.user.UserShortDto;
+import ru.yandex.main.user.comment.ViewCommentDto;
+
+import java.util.List;
 
 @Data
 @Builder
@@ -35,4 +38,6 @@ public class EventShortDto {
 
     // Количество просмотрев события
     Long views;
+
+    List<ViewCommentDto> comments;
 }

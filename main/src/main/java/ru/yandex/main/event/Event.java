@@ -6,9 +6,12 @@ import lombok.Setter;
 import lombok.ToString;
 import ru.yandex.main.category.Category;
 import ru.yandex.main.user.User;
+import ru.yandex.main.user.comment.Comment;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "events")
@@ -76,4 +79,11 @@ public class Event {
 
     // Заголовок события
     private String title;
+
+    @OneToMany
+    @JoinTable(name = "events_comments",
+            joinColumns = @JoinColumn(name = "event_id"),
+            inverseJoinColumns = @JoinColumn(name = "comment_id"))
+    @ToString.Exclude
+    private List<Comment> comments = new ArrayList<>();
 }
