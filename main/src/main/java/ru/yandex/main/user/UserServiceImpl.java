@@ -136,7 +136,7 @@ public class UserServiceImpl implements UserService {
     }
 
     private Event findAndCheckEventByIdAndUserIdForEvent(Long eventId, Long userId) {
-        findAndCheckEventById(eventId);
+        CheckEventById(eventId);
         findAndCheckUserById(userId);
         Optional<Event> foundEvent = eventRepository.findByIdAndInitiatorId(eventId, userId);
         if (foundEvent.isEmpty()) {
@@ -148,13 +148,12 @@ public class UserServiceImpl implements UserService {
         return foundEvent.get();
     }
 
-    private Event findAndCheckEventById(Long eventId) {
+    private void CheckEventById(Long eventId) {
         Optional<Event> foundEvent = eventRepository.findById(eventId);
         if (foundEvent.isEmpty()) {
             log.warn("Event with id={} was not found.", eventId);
             throw new NotFoundException("Event with id=" + eventId + " was not found.");
         }
-        return foundEvent.get();
     }
 
     private User findAndCheckUserById(Long userId) {
