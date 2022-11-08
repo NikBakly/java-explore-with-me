@@ -32,7 +32,7 @@ public class UserServiceImpl implements UserService {
     private final RequestService requestService;
     private final Client client;
 
-    private final static Integer TWO_HOUR = 2;
+    private static final Integer TWO_HOUR = 2;
 
     @Override
     @Transactional(readOnly = true)

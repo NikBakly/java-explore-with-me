@@ -29,7 +29,7 @@ public class AdminCompilationServiceImp implements AdminCompilationService {
     private final RequestService requestService;
     private final Client client;
 
-    private final static Integer FIVE_YEARS = 5;
+    private static final Integer FIVE_YEARS = 5;
 
     @Override
     public CompilationDto createCompilation(NewCompilationDto newCompilationDto) {

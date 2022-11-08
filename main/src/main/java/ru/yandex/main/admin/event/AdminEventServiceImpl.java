@@ -32,7 +32,7 @@ public class AdminEventServiceImpl implements AdminEventService {
     private final RequestService requestService;
     private final Client client;
 
-    private final static Integer ONE_HOUR = 1;
+    private static final Integer ONE_HOUR = 1;
 
     @Override
     @Transactional(readOnly = true)
