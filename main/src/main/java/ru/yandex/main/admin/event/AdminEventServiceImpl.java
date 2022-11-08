@@ -7,7 +7,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.annotation.Validated;
 import ru.yandex.main.GlobalVariable;
 import ru.yandex.main.category.Category;
 import ru.yandex.main.category.CategoryRepository;
@@ -18,7 +17,6 @@ import ru.yandex.main.statistic.Client;
 import ru.yandex.main.statistic.ViewStats;
 import ru.yandex.main.user.request.RequestService;
 
-import javax.validation.Valid;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +25,6 @@ import java.util.Optional;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-@Validated
 public class AdminEventServiceImpl implements AdminEventService {
     private final EventRepository eventRepository;
     private final CategoryRepository categoryRepository;
@@ -35,9 +32,11 @@ public class AdminEventServiceImpl implements AdminEventService {
     private final RequestService requestService;
     private final Client client;
 
+    private final static Integer ONE_HOUR = 1;
+
     @Override
     @Transactional(readOnly = true)
-    public List<EventFullDto> findEvents(@Valid EventFilterAdmin eventFilterAdmin) {
+    public List<EventFullDto> findEvents(EventFilterAdmin eventFilterAdmin) {
         Pageable pageable = PageRequest.of(eventFilterAdmin.getFrom(), eventFilterAdmin.getSize());
         List<Event> foundEvents = eventRepository.findAll(formatExpression(eventFilterAdmin), pageable).getContent();
 
@@ -171,7 +170,7 @@ public class AdminEventServiceImpl implements AdminEventService {
 
     //Проверка условия: дата начала события должна быть не ранее чем за час от даты публикации
     private void checkTimeWhenPublishEvent(LocalDateTime eventTime, LocalDateTime publishTime) {
-        if (!publishTime.plusHours(1).isBefore(eventTime)) {
+        if (!publishTime.plusHours(ONE_HOUR).isBefore(eventTime)) {
             log.warn("At least one hour must pass from publish time to event time");
             throw new NotFoundException("At least one hour must pass from publish time to event time");
         }
@@ -181,8 +180,8 @@ public class AdminEventServiceImpl implements AdminEventService {
     private Long getViews(Long eventId) {
         String uri = "/event/" + eventId;
         Optional<ViewStats> viewStats = client.findByUrl(
-                        LocalDateTime.now().minusYears(5).format(GlobalVariable.TIME_FORMATTER),
-                        LocalDateTime.now().plusYears(5).format(GlobalVariable.TIME_FORMATTER),
+                        LocalDateTime.now().minusYears(GlobalVariable.FIVE_YEAR).format(GlobalVariable.TIME_FORMATTER),
+                        LocalDateTime.now().plusYears(GlobalVariable.FIVE_YEAR).format(GlobalVariable.TIME_FORMATTER),
                         uri,
                         false)
                 .stream().findFirst();

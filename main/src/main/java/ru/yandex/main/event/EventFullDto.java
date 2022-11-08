@@ -2,12 +2,14 @@ package ru.yandex.main.event;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import ru.yandex.main.Location;
 import ru.yandex.main.category.CategoryDto;
 import ru.yandex.main.user.UserShortDto;
 
 @Getter
 @Setter
+@ToString
 public class EventFullDto {
     // Кратное описание
     private String annotation;

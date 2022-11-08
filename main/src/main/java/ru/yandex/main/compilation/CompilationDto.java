@@ -1,13 +1,15 @@
 package ru.yandex.main.compilation;
 
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 import ru.yandex.main.event.EventShortDto;
 
 import java.util.List;
 
-@Data
+@Getter
+@Setter
 @Builder
 @ToString
 public class CompilationDto {

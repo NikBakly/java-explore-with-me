@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.validation.annotation.Validated;
 import ru.yandex.main.GlobalVariable;
 import ru.yandex.main.event.EventMapper;
 import ru.yandex.main.event.EventShortDto;
@@ -14,7 +13,6 @@ import ru.yandex.main.statistic.Client;
 import ru.yandex.main.statistic.ViewStats;
 import ru.yandex.main.user.request.RequestService;
 
-import javax.validation.constraints.Min;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +21,6 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-@Validated
 public class CompilationServiceImpl implements CompilationService {
     private final CompilationRepository compilationRepository;
 
@@ -32,9 +29,7 @@ public class CompilationServiceImpl implements CompilationService {
 
     @Override
     public List<CompilationDto> getAll(Boolean pinned,
-                                       @Min(value = 0, message = "The from field cannot be negative")
                                        Integer from,
-                                       @Min(value = 1, message = "The size field cannot be negative or zero")
                                        Integer size) {
         Pageable pageable = PageRequest.of(from, size);
         List<Compilation> compilations = compilationRepository.findAllByPinned(pinned, pageable).getContent();
@@ -74,8 +69,8 @@ public class CompilationServiceImpl implements CompilationService {
     private Long getViews(Long eventId) {
         String uri = "/event/" + eventId;
         Optional<ViewStats> viewStats = client.findByUrl(
-                        LocalDateTime.now().minusYears(5).format(GlobalVariable.TIME_FORMATTER),
-                        LocalDateTime.now().plusYears(5).format(GlobalVariable.TIME_FORMATTER),
+                        LocalDateTime.now().minusYears(GlobalVariable.FIVE_YEAR).format(GlobalVariable.TIME_FORMATTER),
+                        LocalDateTime.now().plusYears(GlobalVariable.FIVE_YEAR).format(GlobalVariable.TIME_FORMATTER),
                         uri,
                         false)
                 .stream().findFirst();

@@ -1,6 +1,5 @@
 package ru.yandex.main.category;
 
-import javax.validation.constraints.Min;
 import java.util.List;
 
 public interface CategoryService {
@@ -11,9 +10,7 @@ public interface CategoryService {
      * @param size количество категорий в наборе
      * @return Получение информации о категории по её идентификатору
      */
-    List<CategoryDto> getAll(@Min(value = 0, message = "The from field cannot be negative")
-                             Integer from,
-                             @Min(value = 1, message = "The size field cannot be negative or zero")
+    List<CategoryDto> getAll(Integer from,
                              Integer size);
 
     /**

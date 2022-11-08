@@ -1,10 +1,14 @@
 package ru.yandex.main.statistic;
 
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
 @Builder
-@Data
+@Getter
+@Setter
+@ToString
 public class EndpointHit {
     // Идентификатор сервиса для которого записывается информация
     private String app;

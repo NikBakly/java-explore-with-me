@@ -1,10 +1,16 @@
 package ru.yandex.main.event;
 
-import lombok.Data;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
 import java.util.List;
 
-@Data
+@Builder
+@Getter
+@Setter
+@ToString
 public class EventFilter {
     private final String text;
     private final List<Long> categories;

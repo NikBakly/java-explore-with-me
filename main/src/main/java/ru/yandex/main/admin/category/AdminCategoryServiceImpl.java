@@ -3,22 +3,19 @@ package ru.yandex.main.admin.category;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.validation.annotation.Validated;
 import ru.yandex.main.category.*;
 import ru.yandex.main.exception.NotFoundException;
 
-import javax.validation.Valid;
 import java.util.Optional;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
-@Validated
 public class AdminCategoryServiceImpl implements AdminCategoryService {
     private final CategoryRepository categoryRepository;
 
     @Override
-    public CategoryDto updateCategory(@Valid CategoryDto updatedCategory) {
+    public CategoryDto updateCategory(CategoryDto updatedCategory) {
         Optional<Category> foundCategory = categoryRepository.findById(updatedCategory.getId());
 
         if (foundCategory.isEmpty()) {
@@ -35,7 +32,7 @@ public class AdminCategoryServiceImpl implements AdminCategoryService {
     }
 
     @Override
-    public CategoryDto createCategory(@Valid NewCategoryDto newCategoryDto) {
+    public CategoryDto createCategory(NewCategoryDto newCategoryDto) {
         Category newCategory = CategoryMapper.toCategory(newCategoryDto);
         categoryRepository.save(newCategory);
         log.info("Category with id={} is created successfully", newCategory.getId());

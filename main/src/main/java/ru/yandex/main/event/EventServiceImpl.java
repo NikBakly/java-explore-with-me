@@ -37,8 +37,11 @@ public class EventServiceImpl implements EventService {
                 eventFilter.getSize());
         List<Event> foundEvents = eventRepository.findAll(formatExpression(eventFilter), pageable).getContent();
         List<EventShortDto> result = new ArrayList<>();
-        foundEvents.forEach(event -> result.add(EventMapper.toEventShortDto(event, getViews(event.getId()), getConfirmedRequests(event.getId()))));
-        sortEvents(result, eventFilter.getSort());
+        foundEvents.forEach(event ->
+                result.add(EventMapper.toEventShortDto(event, getViews(event.getId()), getConfirmedRequests(event.getId()))));
+        if (eventFilter.getSort() != null) {
+            sortEvents(result, eventFilter.getSort());
+        }
         createStatistic(GlobalVariable.MAIN_APP, request.getRequestURI(), request.getRemoteAddr());
         log.info("Events were got all successfully");
         return result;
@@ -120,8 +123,8 @@ public class EventServiceImpl implements EventService {
     private Long getViews(Long eventId) {
         String uri = "/event/" + eventId;
         Optional<ViewStats> viewStats = client.findByUrl(
-                        LocalDateTime.now().minusYears(5).format(GlobalVariable.TIME_FORMATTER),
-                        LocalDateTime.now().plusYears(5).format(GlobalVariable.TIME_FORMATTER),
+                        LocalDateTime.now().minusYears(GlobalVariable.FIVE_YEAR).format(GlobalVariable.TIME_FORMATTER),
+                        LocalDateTime.now().plusYears(GlobalVariable.FIVE_YEAR).format(GlobalVariable.TIME_FORMATTER),
                         uri,
                         false)
                 .stream().findFirst();

@@ -1,21 +1,21 @@
 package ru.yandex.main.category;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 
 /**
  * Данные для добавления новой категории
  */
-@Builder
-@Data
+@Getter
+@Setter
+@ToString
 @AllArgsConstructor
 @NoArgsConstructor
 public class NewCategoryDto {
     // Название категории
-    @NotNull
-    String name;
+    @NotBlank
+    @Size(max = 511)
+    private String name;
 }

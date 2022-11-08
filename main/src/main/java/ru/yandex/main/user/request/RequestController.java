@@ -46,7 +46,7 @@ public class RequestController {
     @PostMapping("/users/{userId}/requests")
     public ParticipationRequestDto createRequest(
             @PathVariable Long userId,
-            @RequestParam(name = "eventId", required = false) Long eventId
+            @RequestParam(name = "eventId") Long eventId
     ) {
         return requestService.createRequest(userId, eventId);
     }

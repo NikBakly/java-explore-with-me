@@ -3,8 +3,6 @@ package ru.yandex.main.admin.compilation;
 import ru.yandex.main.compilation.CompilationDto;
 import ru.yandex.main.compilation.NewCompilationDto;
 
-import javax.validation.Valid;
-
 public interface AdminCompilationService {
 
     /**
@@ -14,7 +12,7 @@ public interface AdminCompilationService {
      * @return Добавленная подборка
      */
     CompilationDto createCompilation(
-            @Valid NewCompilationDto compilation
+            NewCompilationDto compilation
     );
 
     /**

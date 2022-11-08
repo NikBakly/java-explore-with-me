@@ -3,7 +3,6 @@ package ru.yandex.main.admin.compilation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.validation.annotation.Validated;
 import ru.yandex.main.GlobalVariable;
 import ru.yandex.main.compilation.*;
 import ru.yandex.main.event.Event;
@@ -15,7 +14,6 @@ import ru.yandex.main.statistic.Client;
 import ru.yandex.main.statistic.ViewStats;
 import ru.yandex.main.user.request.RequestService;
 
-import javax.validation.Valid;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,7 +22,6 @@ import java.util.Optional;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-@Validated
 public class AdminCompilationServiceImp implements AdminCompilationService {
     private final CompilationRepository compilationRepository;
     private final EventRepository eventRepository;
@@ -32,8 +29,10 @@ public class AdminCompilationServiceImp implements AdminCompilationService {
     private final RequestService requestService;
     private final Client client;
 
+    private final static Integer FIVE_YEARS = 5;
+
     @Override
-    public CompilationDto createCompilation(@Valid NewCompilationDto newCompilationDto) {
+    public CompilationDto createCompilation(NewCompilationDto newCompilationDto) {
         List<Long> eventIds = newCompilationDto.getEvents();
         Compilation compilation = CompilationMapper.toCompilation(newCompilationDto, getListEvent(eventIds));
         compilationRepository.save(compilation);
@@ -94,17 +93,9 @@ public class AdminCompilationServiceImp implements AdminCompilationService {
         log.debug("Compilation with id={} was pin successfully", compilationId);
     }
 
-    // Создания списка события для передачи в подборку, если событие не найдено, то в список не будет добавлено.
+    // Создания списка события для передачи в подборку
     private List<Event> getListEvent(List<Long> eventIds) {
-        List<Event> events = new ArrayList<>();
-        eventIds.forEach(eventId -> {
-            Optional<Event> foundEvent = eventRepository.findById(eventId);
-            foundEvent.ifPresentOrElse(
-                    events::add,
-                    () -> log.warn("Event with id={} was not found", eventId)
-            );
-        });
-        return events;
+        return eventRepository.findAllByEventIds(eventIds);
     }
 
     // проверка на существования подборки и возврат, если существует
@@ -131,8 +122,8 @@ public class AdminCompilationServiceImp implements AdminCompilationService {
     private Long getViews(Long eventId) {
         String uri = "/event/" + eventId;
         Optional<ViewStats> viewStats = client.findByUrl(
-                        LocalDateTime.now().minusYears(5).format(GlobalVariable.TIME_FORMATTER),
-                        LocalDateTime.now().plusYears(5).format(GlobalVariable.TIME_FORMATTER),
+                        LocalDateTime.now().minusYears(FIVE_YEARS).format(GlobalVariable.TIME_FORMATTER),
+                        LocalDateTime.now().plusYears(FIVE_YEARS).format(GlobalVariable.TIME_FORMATTER),
                         uri,
                         false)
                 .stream().findFirst();

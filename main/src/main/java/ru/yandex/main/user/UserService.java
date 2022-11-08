@@ -5,8 +5,6 @@ import ru.yandex.main.event.EventShortDto;
 import ru.yandex.main.event.NewEventDto;
 import ru.yandex.main.event.UpdateEventRequest;
 
-import javax.validation.Valid;
-import javax.validation.constraints.Min;
 import java.util.List;
 
 public interface UserService {
@@ -21,9 +19,7 @@ public interface UserService {
      */
     List<EventShortDto> findUserEventsById(
             Long userId,
-            @Min(value = 0, message = "The from field cannot be negative")
             Integer from,
-            @Min(value = 1, message = "The size field cannot be negative or zero")
             Integer size
     );
 
@@ -36,7 +32,7 @@ public interface UserService {
      */
     EventFullDto updateUserEventById(
             Long userId,
-            @Valid UpdateEventRequest event
+            UpdateEventRequest event
     );
 
     /**
@@ -48,7 +44,7 @@ public interface UserService {
      */
     EventFullDto createUserEvent(
             Long userId,
-            @Valid NewEventDto newEventDto
+            NewEventDto newEventDto
     );
 
     /**

@@ -13,4 +13,6 @@ public final class GlobalVariable {
     public static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     public static final String MAIN_APP = "ewm-main-service";
+
+    public final static Integer FIVE_YEAR = 5;
 }

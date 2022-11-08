@@ -3,7 +3,6 @@ package ru.yandex.main.admin.event;
 import ru.yandex.main.event.AdminUpdateEventRequest;
 import ru.yandex.main.event.EventFullDto;
 
-import javax.validation.Valid;
 import java.util.List;
 
 public interface AdminEventService {
@@ -21,7 +20,7 @@ public interface AdminEventService {
      * @return Событие подходящие под параметры
      */
     List<EventFullDto> findEvents(
-            @Valid EventFilterAdmin eventFilterAdmin
+            EventFilterAdmin eventFilterAdmin
     );
 
     /**

@@ -16,8 +16,6 @@ import ru.yandex.main.statistic.Client;
 import ru.yandex.main.statistic.ViewStats;
 import ru.yandex.main.user.request.RequestService;
 
-import javax.validation.Valid;
-import javax.validation.constraints.Min;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,12 +32,12 @@ public class UserServiceImpl implements UserService {
     private final RequestService requestService;
     private final Client client;
 
+    private final static Integer TWO_HOUR = 2;
+
     @Override
     @Transactional(readOnly = true)
     public List<EventShortDto> findUserEventsById(Long userId,
-                                                  @Min(value = 0, message = "The from field cannot be negative")
                                                   Integer from,
-                                                  @Min(value = 1, message = "The size field cannot be negative or zero")
                                                   Integer size) {
         Pageable pageable = PageRequest.of(from, size);
         List<Event> events = eventRepository.findAllByInitiatorId(userId, pageable).getContent();
@@ -58,7 +56,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public EventFullDto updateUserEventById(Long userId, @Valid UpdateEventRequest updateEventRequest) {
+    public EventFullDto updateUserEventById(Long userId, UpdateEventRequest updateEventRequest) {
         Category newCategory = findAndCheckCategoryById(updateEventRequest.getCategory());
         // дата и время на которые намечено событие не может быть раньше, чем через два часа от текущего момента
         if (updateEventRequest.getEventDate() != null) {
@@ -103,7 +101,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public EventFullDto createUserEvent(Long userId, @Valid NewEventDto newEventDto) {
+    public EventFullDto createUserEvent(Long userId, NewEventDto newEventDto) {
         User foundUser = findAndCheckUserById(userId);
         Category foundCategory = findAndCheckCategoryById(newEventDto.getCategory());
         // дата и время на которые намечено событие не может быть раньше, чем через два часа от текущего момента
@@ -136,7 +134,7 @@ public class UserServiceImpl implements UserService {
     }
 
     private Event findAndCheckEventByIdAndUserId(Long eventId, Long userId) {
-        findAndCheckEventById(eventId);
+        checkEventById(eventId);
         findAndCheckUserById(userId);
         Optional<Event> foundEvent = eventRepository.findByIdAndInitiatorId(eventId, userId);
         if (foundEvent.isEmpty()) {
@@ -148,13 +146,12 @@ public class UserServiceImpl implements UserService {
         return foundEvent.get();
     }
 
-    private Event findAndCheckEventById(Long eventId) {
+    private void checkEventById(Long eventId) {
         Optional<Event> foundEvent = eventRepository.findById(eventId);
         if (foundEvent.isEmpty()) {
             log.warn("Event with id={} was not found.", eventId);
             throw new NotFoundException("Event with id=" + eventId + " was not found.");
         }
-        return foundEvent.get();
     }
 
     private User findAndCheckUserById(Long userId) {
@@ -177,7 +174,7 @@ public class UserServiceImpl implements UserService {
 
     private static void checkTime(String dateTimeString) {
         LocalDateTime dateTime = LocalDateTime.parse(dateTimeString, GlobalVariable.TIME_FORMATTER);
-        if (!dateTime.isAfter(LocalDateTime.now().plusHours(2))) {
+        if (!dateTime.isAfter(LocalDateTime.now().plusHours(TWO_HOUR))) {
             log.warn("The time is incorrect when interacting with the event");
             throw new BadRequestException("TThe time is incorrect when interacting with the event");
         }
@@ -187,8 +184,8 @@ public class UserServiceImpl implements UserService {
     private Long getViews(Long eventId) {
         String uri = "/event/" + eventId;
         Optional<ViewStats> viewStats = client.findByUrl(
-                        LocalDateTime.now().minusYears(5).format(GlobalVariable.TIME_FORMATTER),
-                        LocalDateTime.now().plusYears(5).format(GlobalVariable.TIME_FORMATTER),
+                        LocalDateTime.now().minusYears(GlobalVariable.FIVE_YEAR).format(GlobalVariable.TIME_FORMATTER),
+                        LocalDateTime.now().plusYears(GlobalVariable.FIVE_YEAR).format(GlobalVariable.TIME_FORMATTER),
                         uri,
                         false)
                 .stream().findFirst();
