@@ -3,13 +3,13 @@ package ru.yandex.main.event;
 import lombok.Builder;
 import lombok.Data;
 import lombok.ToString;
-import org.hibernate.validator.constraints.Length;
 import ru.yandex.main.GlobalVariable;
 import ru.yandex.main.Location;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 
 /**
  * Новое событие
@@ -19,7 +19,7 @@ import javax.validation.constraints.Pattern;
 @ToString
 public class NewEventDto {
     // Краткое описание события
-    @Length(min = 20, max = 2000, message = "The title field must be between 20 and 2000 in length")
+    @Size(min = 20, max = 2000, message = "The title field must be between 20 and 2000 in length")
     @NotBlank
     private String annotation;
 
@@ -28,7 +28,7 @@ public class NewEventDto {
     private Long category;
 
     // Полное описание события
-    @Length(min = 20, max = 7000, message = "The description field must be between 20 and 7000 in length")
+    @Size(min = 20, max = 7000, message = "The description field must be between 20 and 7000 in length")
     @NotBlank(message = "The description field cannot be undefined")
     private String description;
 
@@ -56,7 +56,7 @@ public class NewEventDto {
     private Boolean requestModeration = true;
 
     // Заголовок события
-    @Length(min = 3, max = 120, message = "The title field must be between 3 and 120 in length")
+    @Size(min = 3, max = 120, message = "The title field must be between 3 and 120 in length")
     @NotBlank(message = "The title field cannot be blank")
     private String title;
 

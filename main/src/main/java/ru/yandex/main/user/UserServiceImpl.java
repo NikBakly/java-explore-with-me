@@ -64,7 +64,7 @@ public class UserServiceImpl implements UserService {
         if (updateEventRequest.getEventDate() != null) {
             checkTime(updateEventRequest.getEventDate());
         }
-        Event foundEvent = findAndCheckEventByIdAndUserIdForEvent(updateEventRequest.getEventId(), userId);
+        Event foundEvent = findAndCheckEventByIdAndUserId(updateEventRequest.getEventId(), userId);
         // изменить можно только отмененные события или события в состоянии ожидания модерации
         if (foundEvent.getState().equals(State.CONFIRMED) || foundEvent.getState().equals(State.PUBLISHED)) {
             log.warn("The update event should be canceled or pending");
@@ -117,7 +117,7 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional(readOnly = true)
     public EventFullDto findUserEventByUserIdAndByEventId(Long userId, Long eventId) {
-        Event foundEvent = findAndCheckEventByIdAndUserIdForEvent(eventId, userId);
+        Event foundEvent = findAndCheckEventByIdAndUserId(eventId, userId);
         log.info("User's event with id={} and user with id={} were found successfully", eventId, userId);
         return EventMapper.toEventFullDto(foundEvent, getViews(eventId), getConfirmedRequests(eventId));
     }
@@ -125,7 +125,7 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public EventFullDto eventCancellation(Long userId, Long eventId) {
-        Event foundEvent = findAndCheckEventByIdAndUserIdForEvent(eventId, userId);
+        Event foundEvent = findAndCheckEventByIdAndUserId(eventId, userId);
         if (!foundEvent.getState().equals(State.PENDING)) {
             log.warn("The event should be pending");
             throw new BadRequestException("The event should be pending");
@@ -135,7 +135,7 @@ public class UserServiceImpl implements UserService {
         return EventMapper.toEventFullDto(foundEvent, getViews(eventId), getConfirmedRequests(eventId));
     }
 
-    private Event findAndCheckEventByIdAndUserIdForEvent(Long eventId, Long userId) {
+    private Event findAndCheckEventByIdAndUserId(Long eventId, Long userId) {
         checkEventById(eventId);
         findAndCheckUserById(userId);
         Optional<Event> foundEvent = eventRepository.findByIdAndInitiatorId(eventId, userId);
