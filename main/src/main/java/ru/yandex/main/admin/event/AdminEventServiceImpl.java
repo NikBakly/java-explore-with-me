@@ -130,7 +130,9 @@ public class AdminEventServiceImpl implements AdminEventService {
     @Override
     public void deleteCommentFromEvent(Long commentId) {
         Comment foundComment = findAndCheckCommentById(commentId);
-        Event foundEvent = eventRepository.findById(foundComment.getId()).get();
+        Event foundEvent = eventRepository.findById(foundComment.getEvent().getId())
+                .orElseThrow(() ->
+                        new NotFoundException("Event with id=" + foundComment.getId() + " was not found"));
         foundEvent.getComments().remove(foundComment);
         eventRepository.save(foundEvent);
         commentRepository.delete(foundComment);

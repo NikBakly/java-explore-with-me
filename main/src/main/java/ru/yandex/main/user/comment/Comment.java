@@ -7,6 +7,7 @@ import ru.yandex.main.event.Event;
 import ru.yandex.main.user.User;
 
 import javax.persistence.*;
+import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
@@ -20,6 +21,7 @@ public class Comment {
     private Long id;
 
     // текст комментария
+    @Size(max = 1000)
     private String text;
 
     // владелец комментария
