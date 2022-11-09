@@ -1,15 +1,17 @@
 package ru.yandex.main.event;
 
-import lombok.Builder;
-import lombok.Data;
+import lombok.*;
 import ru.yandex.main.GlobalVariable;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
-@Data
 @Builder
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class UpdateEventRequest {
     // Кратное описание
     @Size(min = 20, max = 2000, message = "The annotation field should be between 20 and 2000 in length")
@@ -19,7 +21,7 @@ public class UpdateEventRequest {
     private Long category;
 
     // Полное описание события
-    @Size(min = 20, max = 7000, message = "The description field should be between 20 and 7000 in length")
+    @Size(min = 20, max = 7000, message = "The description field should be between 20 and 2000 in length")
     private String description;
 
     // Дата и время на которые намечено событие
@@ -36,6 +38,6 @@ public class UpdateEventRequest {
     private Long participantLimit;
 
     // Заголовок
-    @Size(min = 3, max = 120, message = "The title field should be between 3 and 120 in length")
+    @Size(min = 3, max = 120, message = "The title field should be between 20 and 2000 in length")
     private String title;
 }

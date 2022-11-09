@@ -1,8 +1,6 @@
 package ru.yandex.main.event;
 
-import lombok.Builder;
-import lombok.Data;
-import lombok.ToString;
+import lombok.*;
 import ru.yandex.main.GlobalVariable;
 import ru.yandex.main.Location;
 
@@ -14,12 +12,15 @@ import javax.validation.constraints.Size;
 /**
  * Новое событие
  */
-@Data
+@Getter
+@Setter
 @Builder
 @ToString
+@RequiredArgsConstructor
+@AllArgsConstructor
 public class NewEventDto {
     // Краткое описание события
-    @Size(min = 20, max = 2000, message = "The title field must be between 20 and 2000 in length")
+    @Size(min = 20, max = 2000, message = "The title field must be between 3 and 120 in length")
     @NotBlank
     private String annotation;
 
@@ -28,7 +29,7 @@ public class NewEventDto {
     private Long category;
 
     // Полное описание события
-    @Size(min = 20, max = 7000, message = "The description field must be between 20 and 7000 in length")
+    @Size(min = 20, max = 7000, message = "The description field must be between 3 and 120 in length")
     @NotBlank(message = "The description field cannot be undefined")
     private String description;
 
