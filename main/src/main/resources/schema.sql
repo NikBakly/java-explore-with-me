@@ -85,12 +85,3 @@ CREATE TABLE IF NOT EXISTS comments
         CHECK (type_comment = 'POSITIVE' OR type_comment = 'NEUTRAL' OR type_comment = 'NEGATIVE')
 
 );
-
-CREATE TABLE IF NOT EXISTS events_comments
-(
-    event_id   BIGINT NOT NULL,
-    comment_id BIGINT NOT NULL,
-    CONSTRAINT pk_events_comments PRIMARY KEY (event_id, comment_id),
-    CONSTRAINT fk_events_comments_on_event FOREIGN KEY (event_id) REFERENCES events (id),
-    CONSTRAINT fk_events_comments_on_comment FOREIGN KEY (comment_id) REFERENCES comments (id)
-);

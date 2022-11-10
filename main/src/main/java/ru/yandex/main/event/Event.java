@@ -1,9 +1,6 @@
 package ru.yandex.main.event;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import ru.yandex.main.category.Category;
 import ru.yandex.main.user.User;
 import ru.yandex.main.user.comment.Comment;
@@ -17,7 +14,10 @@ import java.util.List;
 @Table(name = "events")
 @Getter
 @Setter
+@Builder
 @ToString
+@RequiredArgsConstructor
+@AllArgsConstructor
 public class Event {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -80,10 +80,7 @@ public class Event {
     // Заголовок события
     private String title;
 
-    @OneToMany
-    @JoinTable(name = "events_comments",
-            joinColumns = @JoinColumn(name = "event_id"),
-            inverseJoinColumns = @JoinColumn(name = "comment_id"))
+    @OneToMany(mappedBy = "event")
     @ToString.Exclude
     private List<Comment> comments = new ArrayList<>();
 }

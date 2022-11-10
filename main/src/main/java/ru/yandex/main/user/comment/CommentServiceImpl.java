@@ -34,10 +34,11 @@ public class CommentServiceImpl implements CommentService {
         }
         User foundUser = findAndCheckUserById(userId);
         Comment comment = CommentMapper.toComment(newCommentDto, foundUser, foundEvent);
-        foundEvent.getComments().add(comment);
         commentRepository.save(comment);
         log.info("Comment with id={} was created successfully", comment.getId());
-        return CommentMapper.toViewCommentDto(comment);
+        ViewCommentDto result = CommentMapper.toViewCommentDto(comment);
+        log.debug(result.toString());
+        return result;
     }
 
     @Override
@@ -64,18 +65,18 @@ public class CommentServiceImpl implements CommentService {
         foundEvent.getComments().add(foundComment);
         commentRepository.save(foundComment);
         log.info("Comment with id={} was updated successfully", foundComment.getId());
-        return CommentMapper.toViewCommentDto(foundComment);
+        log.debug(foundComment.toString());
+        ViewCommentDto result = CommentMapper.toViewCommentDto(foundComment);
+        log.debug(result.toString());
+        return result;
     }
 
     @Override
     public void deleteCommentById(Long userId, Long eventId, Long commentId) {
         findAndCheckUserById(userId);
-        Event foundEvent = findAndCheckEventById(eventId);
+        findAndCheckEventById(eventId);
         Comment foundComment = findAndCheckCommentById(commentId);
         checkOwnerComment(foundComment, userId);
-        //Процесс удаление комментария у события
-        foundEvent.getComments().remove(foundComment);
-        eventRepository.save(foundEvent);
         commentRepository.delete(foundComment);
         log.info("Comment with id={} was deleted by user successfully", foundComment.getId());
     }
