@@ -47,7 +47,7 @@ public class CompilationServiceImpl implements CompilationService {
         List<EventShortDto> eventsShortDto = EventMapper
                 .toEventsShortDto(
                         foundCompilation.get(),
-                        getViews(foundCompilation.get().getId()),
+                        getHistFromViewStats(foundCompilation.get().getId()),
                         getConfirmedRequests(foundCompilation.get().getId()));
         return CompilationMapper.toCompilationDto(foundCompilation.get(), eventsShortDto);
     }
@@ -60,14 +60,14 @@ public class CompilationServiceImpl implements CompilationService {
             List<Event> events = compilation.getEvents();
             events.forEach(event -> eventIds.add(event.getId()));
             List<EventShortDto> eventsShortDto =
-                    EventMapper.toEventsShortDto(events, getViews(eventIds), getConfirmedRequest(eventIds));
+                    EventMapper.toEventsShortDto(events, getHistFromViewStats(eventIds), getConfirmedRequest(eventIds));
             result.add(CompilationMapper.toCompilationDto(compilation, eventsShortDto));
         });
         return result;
     }
 
     // возврат количества просмотров у события
-    private Long getViews(Long eventId) {
+    private Long getHistFromViewStats(Long eventId) {
         String uri = "/event/" + eventId;
         Optional<ViewStats> viewStats = client.findByUrl(
                         LocalDateTime.now().minusYears(GlobalVariable.FIVE_YEARS).format(GlobalVariable.TIME_FORMATTER),
@@ -82,20 +82,29 @@ public class CompilationServiceImpl implements CompilationService {
         return viewStats.get().getHits();
     }
 
-    private List<ViewStats> getViews(List<Long> eventIds) {
+    private List<Long> getHistFromViewStats(List<Long> eventIds) {
+        List<Long> hits = new ArrayList<>();
         StringBuilder uri = new StringBuilder();
         for (int i = 0; i < eventIds.size(); i++) {
-            if (i + 1 < eventIds.size()) {
+            if (i == eventIds.size() - 1) {
                 uri.append("/events/").append(eventIds.get(i));
             } else {
                 uri.append("/events/").append(eventIds.get(i)).append(",");
             }
         }
-        return client.findByUrl(
+        List<ViewStats> viewStats = client.findByUrl(
                 LocalDateTime.now().minusYears(GlobalVariable.FIVE_YEARS).format(GlobalVariable.TIME_FORMATTER),
                 LocalDateTime.now().plusYears(GlobalVariable.FIVE_YEARS).format(GlobalVariable.TIME_FORMATTER),
                 uri.toString(),
                 false);
+        if (viewStats.isEmpty()) {
+            // заполняем пустые места нулями
+            eventIds.forEach(aLong -> hits.add(0L));
+        } else {
+            // заполняем данными
+            viewStats.forEach(viewStats1 -> hits.add(viewStats1.getHits()));
+        }
+        return hits;
     }
 
     // возврат количество подтвержденных заявок по идентификатору события

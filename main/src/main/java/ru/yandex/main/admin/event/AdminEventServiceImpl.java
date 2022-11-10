@@ -41,7 +41,7 @@ public class AdminEventServiceImpl implements AdminEventService {
         List<Event> foundEvent = eventRepository.findAll(formatExpression(eventFilterAdmin), pageable).getContent();
         List<Long> eventIds = new ArrayList<>();
         foundEvent.forEach(event -> eventIds.add(event.getId()));
-        List<EventFullDto> result = EventMapper.toEventsFullDto(foundEvent, getViews(eventIds), getConfirmedRequest(eventIds));
+        List<EventFullDto> result = EventMapper.toEventsFullDto(foundEvent, getHistFromViewStats(eventIds), getConfirmedRequest(eventIds));
         log.info("Events were found successfully");
         return result;
     }
@@ -80,7 +80,7 @@ public class AdminEventServiceImpl implements AdminEventService {
             foundEvent.setTitle(updateEventRequest.getTitle());
         }
         eventRepository.save(foundEvent);
-        return EventMapper.toEventFullDto(foundEvent, getViews(eventId), getConfirmedRequests(eventId));
+        return EventMapper.toEventFullDto(foundEvent, getHistFromViewStats(eventId), getConfirmedRequests(eventId));
     }
 
     @Override
@@ -92,7 +92,7 @@ public class AdminEventServiceImpl implements AdminEventService {
             checkTimeWhenPublishEvent(foundEvent.getEventDate(), publishEvent);
             foundEvent.setPublishedOn(publishEvent);
             foundEvent.setState(State.PUBLISHED);
-            return EventMapper.toEventFullDto(foundEvent, getViews(eventId), getConfirmedRequests(eventId));
+            return EventMapper.toEventFullDto(foundEvent, getHistFromViewStats(eventId), getConfirmedRequests(eventId));
         } else {
             log.warn("The event must have the status 'PENDING' when it needs to be published.");
             throw new BadRequestException("The event must have the status 'PENDING' when it needs to be published.");
@@ -106,7 +106,7 @@ public class AdminEventServiceImpl implements AdminEventService {
         if (foundEvent.getState().equals(State.PENDING)) {
             foundEvent.setState(State.CANCELED);
             log.info("Event with id={} is rejected successfully", eventId);
-            return EventMapper.toEventFullDto(foundEvent, getViews(eventId), getConfirmedRequests(eventId));
+            return EventMapper.toEventFullDto(foundEvent, getHistFromViewStats(eventId), getConfirmedRequests(eventId));
         } else {
             log.warn("The event must have the status 'PENDING' when it needs to be rejected.");
             throw new BadRequestException("The event must have the status 'PENDING' when it needs to be rejected.");
@@ -167,7 +167,7 @@ public class AdminEventServiceImpl implements AdminEventService {
     }
 
     // возврат количества просмотров у события
-    private Long getViews(Long eventId) {
+    private Long getHistFromViewStats(Long eventId) {
         String uri = "/event/" + eventId;
         Optional<ViewStats> viewStats = client.findByUrl(
                         LocalDateTime.now().minusYears(GlobalVariable.FIVE_YEARS).format(GlobalVariable.TIME_FORMATTER),
@@ -182,20 +182,29 @@ public class AdminEventServiceImpl implements AdminEventService {
         return viewStats.get().getHits();
     }
 
-    private List<ViewStats> getViews(List<Long> eventIds) {
+    private List<Long> getHistFromViewStats(List<Long> eventIds) {
+        List<Long> hits = new ArrayList<>();
         StringBuilder uri = new StringBuilder();
         for (int i = 0; i < eventIds.size(); i++) {
-            if (i + 1 < eventIds.size()) {
+            if (i == eventIds.size() - 1) {
                 uri.append("/events/").append(eventIds.get(i));
             } else {
                 uri.append("/events/").append(eventIds.get(i)).append(",");
             }
         }
-        return client.findByUrl(
+        List<ViewStats> viewStats = client.findByUrl(
                 LocalDateTime.now().minusYears(GlobalVariable.FIVE_YEARS).format(GlobalVariable.TIME_FORMATTER),
                 LocalDateTime.now().plusYears(GlobalVariable.FIVE_YEARS).format(GlobalVariable.TIME_FORMATTER),
                 uri.toString(),
                 false);
+        if (viewStats.isEmpty()) {
+            // заполняем пустые места нулями
+            eventIds.forEach(aLong -> hits.add(0L));
+        } else {
+            // заполняем данными
+            viewStats.forEach(viewStats1 -> hits.add(viewStats1.getHits()));
+        }
+        return hits;
     }
 
     // возврат количество подтвержденных заявок по идентификатору события

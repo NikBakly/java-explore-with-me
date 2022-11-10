@@ -38,7 +38,7 @@ public class EventServiceImpl implements EventService {
         List<Event> foundEvent = eventRepository.findAll(formatExpression(eventFilter), pageable).getContent();
         List<Long> eventIds = new ArrayList<>();
         foundEvent.forEach(event -> eventIds.add(event.getId()));
-        List<EventShortDto> result = EventMapper.toEventsShortDto(foundEvent, getViews(eventIds), getConfirmedRequest(eventIds));
+        List<EventShortDto> result = EventMapper.toEventsShortDto(foundEvent, getHistFromViewStats(eventIds), getConfirmedRequest(eventIds));
         if (eventFilter.getSort() != null) {
             sortEvents(result, eventFilter.getSort());
         }
@@ -57,7 +57,7 @@ public class EventServiceImpl implements EventService {
         }
         log.info("Event with id={} was found successfully", eventId);
         createStatistic(GlobalVariable.MAIN_APP, request.getRequestURI(), request.getRemoteAddr());
-        return EventMapper.toEventFullDto(foundEvent.get(), getViews(eventId), getConfirmedRequests(eventId));
+        return EventMapper.toEventFullDto(foundEvent.get(), getHistFromViewStats(eventId), getConfirmedRequests(eventId));
     }
 
     //  Формирование условия для запроса в БД
@@ -120,7 +120,7 @@ public class EventServiceImpl implements EventService {
     }
 
     // возврат количества просмотров у события
-    private Long getViews(Long eventId) {
+    private Long getHistFromViewStats(Long eventId) {
         String uri = "/event/" + eventId;
         Optional<ViewStats> viewStats = client.findByUrl(
                         LocalDateTime.now().minusYears(GlobalVariable.FIVE_YEARS).format(GlobalVariable.TIME_FORMATTER),
@@ -135,20 +135,29 @@ public class EventServiceImpl implements EventService {
         return viewStats.get().getHits();
     }
 
-    private List<ViewStats> getViews(List<Long> eventIds) {
+    private List<Long> getHistFromViewStats(List<Long> eventIds) {
+        List<Long> hits = new ArrayList<>();
         StringBuilder uri = new StringBuilder();
         for (int i = 0; i < eventIds.size(); i++) {
-            if (i + 1 < eventIds.size()) {
+            if (i == eventIds.size() - 1) {
                 uri.append("/events/").append(eventIds.get(i));
             } else {
                 uri.append("/events/").append(eventIds.get(i)).append(",");
             }
         }
-        return client.findByUrl(
+        List<ViewStats> viewStats = client.findByUrl(
                 LocalDateTime.now().minusYears(GlobalVariable.FIVE_YEARS).format(GlobalVariable.TIME_FORMATTER),
                 LocalDateTime.now().plusYears(GlobalVariable.FIVE_YEARS).format(GlobalVariable.TIME_FORMATTER),
                 uri.toString(),
                 false);
+        if (viewStats.isEmpty()) {
+            // заполняем пустые места нулями
+            eventIds.forEach(aLong -> hits.add(0L));
+        } else {
+            // заполняем данными
+            viewStats.forEach(viewStats1 -> hits.add(viewStats1.getHits()));
+        }
+        return hits;
     }
 
     // возврат количество подтвержденных заявок по идентификатору события

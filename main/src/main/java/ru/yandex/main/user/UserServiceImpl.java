@@ -43,7 +43,7 @@ public class UserServiceImpl implements UserService {
         List<Event> events = eventRepository.findAllByInitiatorId(userId, pageable).getContent();
         List<Long> eventIds = new ArrayList<>();
         events.forEach(event -> eventIds.add(event.getId()));
-        List<EventShortDto> result = EventMapper.toEventsShortDto(events, getViews(eventIds), getConfirmedRequest(eventIds));
+        List<EventShortDto> result = EventMapper.toEventsShortDto(events, getHistFromViewStats(eventIds), getConfirmedRequest(eventIds));
         log.info("User's events were found successfully");
         return result;
     }
@@ -90,7 +90,7 @@ public class UserServiceImpl implements UserService {
         }
         eventRepository.save(foundEvent);
         log.info("Event with id={} was updated successfully", foundEvent.getId());
-        return EventMapper.toEventFullDto(foundEvent, getViews(foundEvent.getId()), getConfirmedRequests(foundEvent.getId()));
+        return EventMapper.toEventFullDto(foundEvent, getHistFromViewStats(foundEvent.getId()), getConfirmedRequests(foundEvent.getId()));
     }
 
     @Override
@@ -111,7 +111,7 @@ public class UserServiceImpl implements UserService {
     public EventFullDto findUserEventByUserIdAndByEventId(Long userId, Long eventId) {
         Event foundEvent = findAndCheckEventByIdAndUserId(eventId, userId);
         log.info("User's event with id={} and user with id={} were found successfully", eventId, userId);
-        return EventMapper.toEventFullDto(foundEvent, getViews(eventId), getConfirmedRequests(eventId));
+        return EventMapper.toEventFullDto(foundEvent, getHistFromViewStats(eventId), getConfirmedRequests(eventId));
     }
 
     @Override
@@ -124,7 +124,7 @@ public class UserServiceImpl implements UserService {
         }
         foundEvent.setState(State.CANCELED);
         eventRepository.save(foundEvent);
-        return EventMapper.toEventFullDto(foundEvent, getViews(eventId), getConfirmedRequests(eventId));
+        return EventMapper.toEventFullDto(foundEvent, getHistFromViewStats(eventId), getConfirmedRequests(eventId));
     }
 
     private Event findAndCheckEventByIdAndUserId(Long eventId, Long userId) {
@@ -175,8 +175,8 @@ public class UserServiceImpl implements UserService {
     }
 
     // возврат количества просмотров у события
-    private Long getViews(Long eventId) {
-        String uri = "/events/" + eventId;
+    private Long getHistFromViewStats(Long eventId) {
+        String uri = "/event/" + eventId;
         Optional<ViewStats> viewStats = client.findByUrl(
                         LocalDateTime.now().minusYears(GlobalVariable.FIVE_YEARS).format(GlobalVariable.TIME_FORMATTER),
                         LocalDateTime.now().plusYears(GlobalVariable.FIVE_YEARS).format(GlobalVariable.TIME_FORMATTER),
@@ -190,20 +190,29 @@ public class UserServiceImpl implements UserService {
         return viewStats.get().getHits();
     }
 
-    private List<ViewStats> getViews(List<Long> eventIds) {
+    private List<Long> getHistFromViewStats(List<Long> eventIds) {
+        List<Long> hits = new ArrayList<>();
         StringBuilder uri = new StringBuilder();
         for (int i = 0; i < eventIds.size(); i++) {
-            if (i + 1 < eventIds.size()) {
+            if (i == eventIds.size() - 1) {
                 uri.append("/events/").append(eventIds.get(i));
             } else {
                 uri.append("/events/").append(eventIds.get(i)).append(",");
             }
         }
-        return client.findByUrl(
+        List<ViewStats> viewStats = client.findByUrl(
                 LocalDateTime.now().minusYears(GlobalVariable.FIVE_YEARS).format(GlobalVariable.TIME_FORMATTER),
                 LocalDateTime.now().plusYears(GlobalVariable.FIVE_YEARS).format(GlobalVariable.TIME_FORMATTER),
                 uri.toString(),
                 false);
+        if (viewStats.isEmpty()) {
+            // заполняем пустые места нулями
+            eventIds.forEach(aLong -> hits.add(0L));
+        } else {
+            // заполняем данными
+            viewStats.forEach(viewStats1 -> hits.add(viewStats1.getHits()));
+        }
+        return hits;
     }
 
     // возврат количество подтвержденных заявок по идентификатору события
@@ -214,4 +223,5 @@ public class UserServiceImpl implements UserService {
     private List<Long> getConfirmedRequest(List<Long> eventIds) {
         return requestService.getNumberOfConfirmedRequests(eventIds);
     }
+
 }

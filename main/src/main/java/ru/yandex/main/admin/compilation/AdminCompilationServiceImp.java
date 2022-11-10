@@ -37,7 +37,7 @@ public class AdminCompilationServiceImp implements AdminCompilationService {
         List<EventShortDto> eventsShortDto = EventMapper
                 .toEventsShortDto(
                         compilation,
-                        getViews(compilation.getId()),
+                        getHistFromViewStats(compilation.getId()),
                         getConfirmedRequests(compilation.getId()));
         log.info("Compilation with id={} was created successfully", compilation.getId());
         return CompilationMapper.toCompilationDto(compilation, eventsShortDto);
@@ -117,7 +117,7 @@ public class AdminCompilationServiceImp implements AdminCompilationService {
     }
 
     // возврат количества просмотров у события
-    private Long getViews(Long eventId) {
+    private Long getHistFromViewStats(Long eventId) {
         String uri = "/event/" + eventId;
         Optional<ViewStats> viewStats = client.findByUrl(
                         LocalDateTime.now().minusYears(GlobalVariable.FIVE_YEARS).format(GlobalVariable.TIME_FORMATTER),

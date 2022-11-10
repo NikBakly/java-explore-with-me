@@ -7,7 +7,6 @@ import ru.yandex.main.Location;
 import ru.yandex.main.category.Category;
 import ru.yandex.main.category.CategoryMapper;
 import ru.yandex.main.compilation.Compilation;
-import ru.yandex.main.statistic.ViewStats;
 import ru.yandex.main.user.User;
 import ru.yandex.main.user.UserMapper;
 
@@ -17,24 +16,25 @@ import java.util.List;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class EventMapper {
-    public static List<EventFullDto> toEventsFullDto(List<Event> events, List<ViewStats> viewStats, List<Long> confirmedRequests) {
+
+    public static List<EventFullDto> toEventsFullDto(List<Event> events, List<Long> hits, List<Long> confirmedRequests) {
         List<EventFullDto> result = new ArrayList<>();
         for (int i = 0; i < events.size(); i++) {
             EventFullDto eventShortDto = toEventFullDto(
                     events.get(i),
-                    viewStats.get(i).getHits(),
+                    hits.get(i),
                     confirmedRequests.get(i));
             result.add(eventShortDto);
         }
         return result;
     }
 
-    public static List<EventShortDto> toEventsShortDto(List<Event> events, List<ViewStats> viewStats, List<Long> confirmedRequests) {
+    public static List<EventShortDto> toEventsShortDto(List<Event> events, List<Long> hists, List<Long> confirmedRequests) {
         List<EventShortDto> result = new ArrayList<>();
         for (int i = 0; i < events.size(); i++) {
             EventShortDto eventShortDto = toEventShortDto(
                     events.get(i),
-                    viewStats.get(i).getHits(),
+                    hists.get(i),
                     confirmedRequests.get(i));
             result.add(eventShortDto);
         }
