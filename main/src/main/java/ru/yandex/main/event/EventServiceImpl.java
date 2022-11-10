@@ -3,6 +3,7 @@ package ru.yandex.main.event;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -29,6 +30,9 @@ public class EventServiceImpl implements EventService {
     private final RequestService requestService;
     private final Client client;
 
+    @Value("${main-service.name}")
+    private static String MAIN_APP;
+
     @Override
     @Transactional(readOnly = true)
     public List<EventShortDto> getAll(EventFilter eventFilter, HttpServletRequest request) {
@@ -42,7 +46,7 @@ public class EventServiceImpl implements EventService {
         if (eventFilter.getSort() != null) {
             sortEvents(result, eventFilter.getSort());
         }
-        createStatistic(GlobalVariable.MAIN_APP, request.getRequestURI(), request.getRemoteAddr());
+        createStatistic(MAIN_APP, request.getRequestURI(), request.getRemoteAddr());
         log.info("Events were got all successfully");
         return result;
     }
@@ -56,7 +60,7 @@ public class EventServiceImpl implements EventService {
             throw new NotFoundException("Event with id=" + eventId + " was not found.");
         }
         log.info("Event with id={} was found successfully", eventId);
-        createStatistic(GlobalVariable.MAIN_APP, request.getRequestURI(), request.getRemoteAddr());
+        createStatistic(MAIN_APP, request.getRequestURI(), request.getRemoteAddr());
         return EventMapper.toEventFullDto(foundEvent.get(), getHistFromViewStats(eventId), getConfirmedRequests(eventId));
     }
 
@@ -120,7 +124,7 @@ public class EventServiceImpl implements EventService {
     }
 
     // возврат количества просмотров у события
-    private Long getHistFromViewStats(Long eventId) {
+    public Long getHistFromViewStats(Long eventId) {
         String uri = "/event/" + eventId;
         Optional<ViewStats> viewStats = client.findByUrl(
                         LocalDateTime.now().minusYears(GlobalVariable.FIVE_YEARS).format(GlobalVariable.TIME_FORMATTER),
@@ -135,7 +139,7 @@ public class EventServiceImpl implements EventService {
         return viewStats.get().getHits();
     }
 
-    private List<Long> getHistFromViewStats(List<Long> eventIds) {
+    public List<Long> getHistFromViewStats(List<Long> eventIds) {
         List<Long> hits = new ArrayList<>();
         StringBuilder uri = new StringBuilder();
         for (int i = 0; i < eventIds.size(); i++) {
@@ -161,11 +165,11 @@ public class EventServiceImpl implements EventService {
     }
 
     // возврат количество подтвержденных заявок по идентификатору события
-    private Long getConfirmedRequests(Long eventId) {
+    public Long getConfirmedRequests(Long eventId) {
         return requestService.getNumberOfConfirmedRequests(eventId);
     }
 
-    private List<Long> getConfirmedRequest(List<Long> eventIds) {
+    public List<Long> getConfirmedRequest(List<Long> eventIds) {
         return requestService.getNumberOfConfirmedRequests(eventIds);
     }
 

@@ -3,18 +3,10 @@ package ru.yandex.main.admin.compilation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.yandex.main.GlobalVariable;
 import ru.yandex.main.compilation.*;
-import ru.yandex.main.event.Event;
-import ru.yandex.main.event.EventMapper;
-import ru.yandex.main.event.EventRepository;
-import ru.yandex.main.event.EventShortDto;
+import ru.yandex.main.event.*;
 import ru.yandex.main.exception.NotFoundException;
-import ru.yandex.main.statistic.Client;
-import ru.yandex.main.statistic.ViewStats;
-import ru.yandex.main.user.request.RequestService;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -26,8 +18,7 @@ public class AdminCompilationServiceImp implements AdminCompilationService {
     private final CompilationRepository compilationRepository;
     private final EventRepository eventRepository;
 
-    private final RequestService requestService;
-    private final Client client;
+    private final EventServiceImpl eventService;
 
     @Override
     public CompilationDto createCompilation(NewCompilationDto newCompilationDto) {
@@ -37,8 +28,8 @@ public class AdminCompilationServiceImp implements AdminCompilationService {
         List<EventShortDto> eventsShortDto = EventMapper
                 .toEventsShortDto(
                         compilation,
-                        getHistFromViewStats(compilation.getId()),
-                        getConfirmedRequests(compilation.getId()));
+                        eventService.getHistFromViewStats(compilation.getId()),
+                        eventService.getConfirmedRequests(compilation.getId()));
         log.info("Compilation with id={} was created successfully", compilation.getId());
         return CompilationMapper.toCompilationDto(compilation, eventsShortDto);
     }
@@ -114,26 +105,5 @@ public class AdminCompilationServiceImp implements AdminCompilationService {
             throw new NotFoundException("Event with id=" + eventId + " was not found");
         }
         return foundEvent.get();
-    }
-
-    // возврат количества просмотров у события
-    private Long getHistFromViewStats(Long eventId) {
-        String uri = "/event/" + eventId;
-        Optional<ViewStats> viewStats = client.findByUrl(
-                        LocalDateTime.now().minusYears(GlobalVariable.FIVE_YEARS).format(GlobalVariable.TIME_FORMATTER),
-                        LocalDateTime.now().plusYears(GlobalVariable.FIVE_YEARS).format(GlobalVariable.TIME_FORMATTER),
-                        uri,
-                        false)
-                .stream().findFirst();
-        if (viewStats.isEmpty()) {
-            log.info("Statistics for event with id={} were not found so 0 views are returned", eventId);
-            return 0L;
-        }
-        return viewStats.get().getHits();
-    }
-
-    // возврат количество подтвержденных заявок по идентификатору события
-    private Long getConfirmedRequests(Long eventId) {
-        return requestService.getNumberOfConfirmedRequests(eventId);
     }
 }
