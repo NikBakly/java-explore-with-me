@@ -200,10 +200,10 @@ public class UserServiceImpl implements UserService {
             }
         }
         return client.findByUrl(
-                        LocalDateTime.now().minusYears(GlobalVariable.FIVE_YEARS).format(GlobalVariable.TIME_FORMATTER),
-                        LocalDateTime.now().plusYears(GlobalVariable.FIVE_YEARS).format(GlobalVariable.TIME_FORMATTER),
-                        uri.toString(),
-                        false);
+                LocalDateTime.now().minusYears(GlobalVariable.FIVE_YEARS).format(GlobalVariable.TIME_FORMATTER),
+                LocalDateTime.now().plusYears(GlobalVariable.FIVE_YEARS).format(GlobalVariable.TIME_FORMATTER),
+                uri.toString(),
+                false);
     }
 
     // возврат количество подтвержденных заявок по идентификатору события

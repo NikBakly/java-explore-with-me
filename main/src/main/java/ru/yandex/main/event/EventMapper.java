@@ -21,20 +21,21 @@ public final class EventMapper {
         List<EventFullDto> result = new ArrayList<>();
         for (int i = 0; i < events.size(); i++) {
             EventFullDto eventShortDto = toEventFullDto(
-                            events.get(i),
-                            viewStats.get(i).getHits(),
-                            confirmedRequests.get(i));
+                    events.get(i),
+                    viewStats.get(i).getHits(),
+                    confirmedRequests.get(i));
             result.add(eventShortDto);
         }
         return result;
     }
+
     public static List<EventShortDto> toEventsShortDto(List<Event> events, List<ViewStats> viewStats, List<Long> confirmedRequests) {
         List<EventShortDto> result = new ArrayList<>();
         for (int i = 0; i < events.size(); i++) {
             EventShortDto eventShortDto = toEventShortDto(
-                            events.get(i),
-                            viewStats.get(i).getHits(),
-                            confirmedRequests.get(i));
+                    events.get(i),
+                    viewStats.get(i).getHits(),
+                    confirmedRequests.get(i));
             result.add(eventShortDto);
         }
         return result;
