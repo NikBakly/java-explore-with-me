@@ -35,10 +35,10 @@ public class EventServiceImpl implements EventService {
         Pageable pageable = PageRequest.of(
                 eventFilter.getFrom(),
                 eventFilter.getSize());
-        List<Event> foundEvents = eventRepository.findAll(formatExpression(eventFilter), pageable).getContent();
-        List<EventShortDto> result = new ArrayList<>();
-        foundEvents.forEach(event ->
-                result.add(EventMapper.toEventShortDto(event, getViews(event.getId()), getConfirmedRequests(event.getId()))));
+        List<Event> foundEvent = eventRepository.findAll(formatExpression(eventFilter), pageable).getContent();
+        List<Long> eventIds = new ArrayList<>();
+        foundEvent.forEach(event -> eventIds.add(event.getId()));
+        List<EventShortDto> result = EventMapper.toEventsShortDto(foundEvent, getViews(eventIds), getConfirmedRequest(eventIds));
         if (eventFilter.getSort() != null) {
             sortEvents(result, eventFilter.getSort());
         }
@@ -123,8 +123,8 @@ public class EventServiceImpl implements EventService {
     private Long getViews(Long eventId) {
         String uri = "/event/" + eventId;
         Optional<ViewStats> viewStats = client.findByUrl(
-                        LocalDateTime.now().minusYears(GlobalVariable.FIVE_YEAR).format(GlobalVariable.TIME_FORMATTER),
-                        LocalDateTime.now().plusYears(GlobalVariable.FIVE_YEAR).format(GlobalVariable.TIME_FORMATTER),
+                        LocalDateTime.now().minusYears(GlobalVariable.FIVE_YEARS).format(GlobalVariable.TIME_FORMATTER),
+                        LocalDateTime.now().plusYears(GlobalVariable.FIVE_YEARS).format(GlobalVariable.TIME_FORMATTER),
                         uri,
                         false)
                 .stream().findFirst();
@@ -135,9 +135,29 @@ public class EventServiceImpl implements EventService {
         return viewStats.get().getHits();
     }
 
+    private List<ViewStats> getViews(List<Long> eventIds) {
+        StringBuilder uri = new StringBuilder();
+        for (int i = 0; i < eventIds.size(); i++) {
+            if (i + 1 < eventIds.size()) {
+                uri.append("/events/").append(eventIds.get(i));
+            } else {
+                uri.append("/events/").append(eventIds.get(i)).append(",");
+            }
+        }
+        return client.findByUrl(
+                LocalDateTime.now().minusYears(GlobalVariable.FIVE_YEARS).format(GlobalVariable.TIME_FORMATTER),
+                LocalDateTime.now().plusYears(GlobalVariable.FIVE_YEARS).format(GlobalVariable.TIME_FORMATTER),
+                uri.toString(),
+                false);
+    }
+
     // возврат количество подтвержденных заявок по идентификатору события
     private Long getConfirmedRequests(Long eventId) {
         return requestService.getNumberOfConfirmedRequests(eventId);
+    }
+
+    private List<Long> getConfirmedRequest(List<Long> eventIds) {
+        return requestService.getNumberOfConfirmedRequests(eventIds);
     }
 
 }

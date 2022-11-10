@@ -150,6 +150,14 @@ public class RequestServiceImpl implements RequestService {
         return result;
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<Long> getNumberOfConfirmedRequests(List<Long> eventIds) {
+        List<Long> result = requestRepository.countRequestByEventIdsWhenStatusIsConfirmed(eventIds);
+        log.info("Number of confirmed requests was got successfully.");
+        return result;
+    }
+
     private Event findAndCheckEventById(Long eventId) {
         Optional<Event> foundEvent = eventRepository.findById(eventId);
         if (foundEvent.isEmpty()) {

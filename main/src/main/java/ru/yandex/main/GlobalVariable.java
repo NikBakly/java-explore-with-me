@@ -14,5 +14,5 @@ public final class GlobalVariable {
 
     public static final String MAIN_APP = "ewm-main-service";
 
-    public static final Integer FIVE_YEAR = 5;
+    public static final Integer FIVE_YEARS = 5;
 }

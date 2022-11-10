@@ -41,15 +41,9 @@ public class UserServiceImpl implements UserService {
                                                   Integer size) {
         Pageable pageable = PageRequest.of(from, size);
         List<Event> events = eventRepository.findAllByInitiatorId(userId, pageable).getContent();
-        List<EventShortDto> result = new ArrayList<>();
-        events.forEach(event -> {
-            EventShortDto eventShortDto = EventMapper
-                    .toEventShortDto(
-                            event,
-                            getViews(event.getId()),
-                            getConfirmedRequests(event.getId()));
-            result.add(eventShortDto);
-        });
+        List<Long> eventIds = new ArrayList<>();
+        events.forEach(event -> eventIds.add(event.getId()));
+        List<EventShortDto> result = EventMapper.toEventsShortDto(events, getViews(eventIds), getConfirmedRequest(eventIds));
         log.info("User's events were found successfully");
         return result;
     }
@@ -182,10 +176,10 @@ public class UserServiceImpl implements UserService {
 
     // возврат количества просмотров у события
     private Long getViews(Long eventId) {
-        String uri = "/event/" + eventId;
+        String uri = "/events/" + eventId;
         Optional<ViewStats> viewStats = client.findByUrl(
-                        LocalDateTime.now().minusYears(GlobalVariable.FIVE_YEAR).format(GlobalVariable.TIME_FORMATTER),
-                        LocalDateTime.now().plusYears(GlobalVariable.FIVE_YEAR).format(GlobalVariable.TIME_FORMATTER),
+                        LocalDateTime.now().minusYears(GlobalVariable.FIVE_YEARS).format(GlobalVariable.TIME_FORMATTER),
+                        LocalDateTime.now().plusYears(GlobalVariable.FIVE_YEARS).format(GlobalVariable.TIME_FORMATTER),
                         uri,
                         false)
                 .stream().findFirst();
@@ -196,8 +190,28 @@ public class UserServiceImpl implements UserService {
         return viewStats.get().getHits();
     }
 
+    private List<ViewStats> getViews(List<Long> eventIds) {
+        StringBuilder uri = new StringBuilder();
+        for (int i = 0; i < eventIds.size(); i++) {
+            if (i + 1 < eventIds.size()) {
+                uri.append("/events/").append(eventIds.get(i));
+            } else {
+                uri.append("/events/").append(eventIds.get(i)).append(",");
+            }
+        }
+        return client.findByUrl(
+                        LocalDateTime.now().minusYears(GlobalVariable.FIVE_YEARS).format(GlobalVariable.TIME_FORMATTER),
+                        LocalDateTime.now().plusYears(GlobalVariable.FIVE_YEARS).format(GlobalVariable.TIME_FORMATTER),
+                        uri.toString(),
+                        false);
+    }
+
     // возврат количество подтвержденных заявок по идентификатору события
     private Long getConfirmedRequests(Long eventId) {
         return requestService.getNumberOfConfirmedRequests(eventId);
+    }
+
+    private List<Long> getConfirmedRequest(List<Long> eventIds) {
+        return requestService.getNumberOfConfirmedRequests(eventIds);
     }
 }

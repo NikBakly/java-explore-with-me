@@ -84,4 +84,6 @@ public interface RequestService {
      * @return количество подтвержденных заявок пользователя
      */
     Long getNumberOfConfirmedRequests(Long eventId);
+
+    List<Long> getNumberOfConfirmedRequests(List<Long> eventIds);
 }

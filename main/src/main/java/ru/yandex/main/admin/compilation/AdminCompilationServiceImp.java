@@ -29,8 +29,6 @@ public class AdminCompilationServiceImp implements AdminCompilationService {
     private final RequestService requestService;
     private final Client client;
 
-    private static final Integer FIVE_YEARS = 5;
-
     @Override
     public CompilationDto createCompilation(NewCompilationDto newCompilationDto) {
         List<Long> eventIds = newCompilationDto.getEvents();
@@ -122,8 +120,8 @@ public class AdminCompilationServiceImp implements AdminCompilationService {
     private Long getViews(Long eventId) {
         String uri = "/event/" + eventId;
         Optional<ViewStats> viewStats = client.findByUrl(
-                        LocalDateTime.now().minusYears(FIVE_YEARS).format(GlobalVariable.TIME_FORMATTER),
-                        LocalDateTime.now().plusYears(FIVE_YEARS).format(GlobalVariable.TIME_FORMATTER),
+                        LocalDateTime.now().minusYears(GlobalVariable.FIVE_YEARS).format(GlobalVariable.TIME_FORMATTER),
+                        LocalDateTime.now().plusYears(GlobalVariable.FIVE_YEARS).format(GlobalVariable.TIME_FORMATTER),
                         uri,
                         false)
                 .stream().findFirst();

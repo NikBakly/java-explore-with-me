@@ -6,6 +6,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.yandex.main.GlobalVariable;
+import ru.yandex.main.event.Event;
 import ru.yandex.main.event.EventMapper;
 import ru.yandex.main.event.EventShortDto;
 import ru.yandex.main.exception.NotFoundException;
@@ -55,11 +56,11 @@ public class CompilationServiceImpl implements CompilationService {
     private List<CompilationDto> toCompilationsDto(List<Compilation> compilations) {
         List<CompilationDto> result = new ArrayList<>();
         compilations.forEach(compilation -> {
+            List<Long> eventIds = new ArrayList<>();
+            List<Event> events = compilation.getEvents();
+            events.forEach(event -> eventIds.add(event.getId()));
             List<EventShortDto> eventsShortDto =
-                    EventMapper.toEventsShortDto(
-                            compilation,
-                            getViews(compilation.getId()),
-                            getConfirmedRequests(compilation.getId()));
+                    EventMapper.toEventsShortDto(events, getViews(eventIds), getConfirmedRequest(eventIds));
             result.add(CompilationMapper.toCompilationDto(compilation, eventsShortDto));
         });
         return result;
@@ -69,8 +70,8 @@ public class CompilationServiceImpl implements CompilationService {
     private Long getViews(Long eventId) {
         String uri = "/event/" + eventId;
         Optional<ViewStats> viewStats = client.findByUrl(
-                        LocalDateTime.now().minusYears(GlobalVariable.FIVE_YEAR).format(GlobalVariable.TIME_FORMATTER),
-                        LocalDateTime.now().plusYears(GlobalVariable.FIVE_YEAR).format(GlobalVariable.TIME_FORMATTER),
+                        LocalDateTime.now().minusYears(GlobalVariable.FIVE_YEARS).format(GlobalVariable.TIME_FORMATTER),
+                        LocalDateTime.now().plusYears(GlobalVariable.FIVE_YEARS).format(GlobalVariable.TIME_FORMATTER),
                         uri,
                         false)
                 .stream().findFirst();
@@ -81,8 +82,28 @@ public class CompilationServiceImpl implements CompilationService {
         return viewStats.get().getHits();
     }
 
+    private List<ViewStats> getViews(List<Long> eventIds) {
+        StringBuilder uri = new StringBuilder();
+        for (int i = 0; i < eventIds.size(); i++) {
+            if (i + 1 < eventIds.size()) {
+                uri.append("/events/").append(eventIds.get(i));
+            } else {
+                uri.append("/events/").append(eventIds.get(i)).append(",");
+            }
+        }
+        return client.findByUrl(
+                LocalDateTime.now().minusYears(GlobalVariable.FIVE_YEARS).format(GlobalVariable.TIME_FORMATTER),
+                LocalDateTime.now().plusYears(GlobalVariable.FIVE_YEARS).format(GlobalVariable.TIME_FORMATTER),
+                uri.toString(),
+                false);
+    }
+
     // возврат количество подтвержденных заявок по идентификатору события
     private Long getConfirmedRequests(Long eventId) {
         return requestService.getNumberOfConfirmedRequests(eventId);
+    }
+
+    private List<Long> getConfirmedRequest(List<Long> eventIds) {
+        return requestService.getNumberOfConfirmedRequests(eventIds);
     }
 }
