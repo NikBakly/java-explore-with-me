@@ -30,7 +30,6 @@ public final class EventMapper {
     }
     public static List<EventShortDto> toEventsShortDto(List<Event> events, List<ViewStats> viewStats, List<Long> confirmedRequests) {
         List<EventShortDto> result = new ArrayList<>();
-
         for (int i = 0; i < events.size(); i++) {
             EventShortDto eventShortDto = toEventShortDto(
                             events.get(i),
