@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.springframework.validation.ObjectError;
 
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -23,7 +24,7 @@ public class ApiError {
     /**
      * Список стектрейсов или описания ошибок
      */
-    List<String> errors;
+    List<ObjectError> errors;
 
     /**
      * Cообщение об ошибке

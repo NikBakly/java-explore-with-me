@@ -5,17 +5,14 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.client.RestTemplate;
 import ru.yandex.main.exception.BadRequestException;
 
-import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Map;
 
 @Slf4j
 @Service
-@Validated
 public class Client {
     private final RestTemplate rest = new RestTemplate();
 
@@ -35,7 +32,7 @@ public class Client {
     // находит список по одному определенному url
     public List<ViewStats> findByUrl(String start,
                                      String end,
-                                     @NotNull(message = "The url parameter cannot be undefined") String url,
+                                     String url,
                                      Boolean unique) {
         Map<String, Object> parameters = Map.of(
                 "start", start,

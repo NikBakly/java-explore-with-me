@@ -11,6 +11,8 @@ import ru.yandex.main.user.comment.NewCommentDto;
 import ru.yandex.main.user.comment.UpdateCommentDto;
 import ru.yandex.main.user.comment.ViewCommentDto;
 
+import javax.validation.Valid;
+import javax.validation.constraints.Min;
 import java.util.List;
 
 @RestController
@@ -23,8 +25,12 @@ public class UserController {
     @GetMapping("/events")
     public List<EventShortDto> findUserEventsByUserId(
             @PathVariable Long userId,
-            @RequestParam(name = "from", defaultValue = "0") Integer from,
-            @RequestParam(name = "size", defaultValue = "10") Integer size
+            @RequestParam(name = "from", defaultValue = "0")
+            @Min(value = 0, message = "The from field cannot be negative")
+            Integer from,
+            @RequestParam(name = "size", defaultValue = "10")
+            @Min(value = 1, message = "The size field cannot be negative or zero")
+            Integer size
     ) {
         return userService.findUserEventsById(userId, from, size);
     }
@@ -32,7 +38,7 @@ public class UserController {
     @PatchMapping("/events")
     public EventFullDto updateUserEventByUserId(
             @PathVariable Long userId,
-            @RequestBody UpdateEventRequest event
+            @Valid @RequestBody UpdateEventRequest event
     ) {
         return userService.updateUserEventById(userId, event);
     }
@@ -40,7 +46,7 @@ public class UserController {
     @PostMapping("/events")
     public EventFullDto createUserEvent(
             @PathVariable Long userId,
-            @RequestBody NewEventDto event
+            @Valid @RequestBody NewEventDto event
     ) {
         return userService.createUserEvent(userId, event);
     }

@@ -69,6 +69,7 @@ public class ErrorHandler {
                 .reason("For the requested operation the conditions are not met.")
                 .status(StatusError.BAD_REQUEST)
                 .timestamp(getNowTime())
+                .errors(e.getAllErrors())
                 .build();
     }
 

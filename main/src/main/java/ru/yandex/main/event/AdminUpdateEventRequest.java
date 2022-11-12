@@ -1,14 +1,16 @@
 package ru.yandex.main.event;
 
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 import ru.yandex.main.GlobalVariable;
 import ru.yandex.main.Location;
 
 import javax.validation.constraints.Pattern;
 
-@Data
+@Getter
+@Setter
 @Builder
 @ToString
 public class AdminUpdateEventRequest {

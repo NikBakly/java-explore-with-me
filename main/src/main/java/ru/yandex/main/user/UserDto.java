@@ -1,10 +1,12 @@
 package ru.yandex.main.user;
 
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 
-@Data
+@Getter
+@Setter
 @Builder
 @ToString
 public class UserDto {

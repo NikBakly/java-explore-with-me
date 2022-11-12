@@ -3,16 +3,23 @@ package ru.yandex.main.user.request;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
 
+@Repository
 public interface RequestRepository extends JpaRepository<Request, Long> {
 
     @Query("select count(r) " +
             "from Request r " +
             "where r.status = 'CONFIRMED' and r.event.id = :event_id")
     Long countRequestByEventIdWhenStatusIsConfirmed(@Param("event_id") Long eventId);
+
+    @Query("select count(r) " +
+            "from Request r " +
+            "where r.status = 'CONFIRMED' and r.event.id in (:event_id)")
+    List<Long> countRequestByEventIdsWhenStatusIsConfirmed(@Param("event_id") List<Long> eventId);
 
     @Query("select r.id " +
             "from Request r " +

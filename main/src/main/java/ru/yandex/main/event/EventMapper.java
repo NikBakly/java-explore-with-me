@@ -17,6 +17,31 @@ import java.util.List;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class EventMapper {
+
+    public static List<EventFullDto> toEventsFullDto(List<Event> events, List<Long> hits, List<Long> confirmedRequests) {
+        List<EventFullDto> result = new ArrayList<>();
+        for (int i = 0; i < events.size(); i++) {
+            EventFullDto eventShortDto = toEventFullDto(
+                    events.get(i),
+                    hits.get(i),
+                    confirmedRequests.get(i));
+            result.add(eventShortDto);
+        }
+        return result;
+    }
+
+    public static List<EventShortDto> toEventsShortDto(List<Event> events, List<Long> hists, List<Long> confirmedRequests) {
+        List<EventShortDto> result = new ArrayList<>();
+        for (int i = 0; i < events.size(); i++) {
+            EventShortDto eventShortDto = toEventShortDto(
+                    events.get(i),
+                    hists.get(i),
+                    confirmedRequests.get(i));
+            result.add(eventShortDto);
+        }
+        return result;
+    }
+
     public static EventShortDto toEventShortDto(Event event, Long views, Long confirmedRequests) {
         return EventShortDto.builder()
                 .id(event.getId())

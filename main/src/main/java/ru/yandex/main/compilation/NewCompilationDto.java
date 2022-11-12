@@ -1,18 +1,20 @@
 package ru.yandex.main.compilation;
 
-import lombok.Builder;
-import lombok.Data;
-import lombok.ToString;
+import lombok.*;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 import java.util.List;
 
 /**
  * Подборка событий
  */
-@Data
+
+@Getter
+@Setter
 @Builder
-@ToString
+@AllArgsConstructor
+@NoArgsConstructor
 public class NewCompilationDto {
     // Список идентификаторов событий входящих в подборку
     private List<Long> events;
@@ -23,5 +25,6 @@ public class NewCompilationDto {
 
     // Заголовок подборки
     @NotBlank
+    @Size(max = 511)
     private String title;
 }

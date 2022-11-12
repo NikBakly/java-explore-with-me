@@ -1,11 +1,17 @@
 package ru.yandex.main;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 /**
  * Широта и долгота места проведения события
  */
-@Data
+@Getter
+@Setter
+@ToString
+@RequiredArgsConstructor
 public class Location {
     // Широта
     private final Double lat;

@@ -1,6 +1,5 @@
 package ru.yandex.main.compilation;
 
-import javax.validation.constraints.Min;
 import java.util.List;
 
 public interface CompilationService {
@@ -13,9 +12,7 @@ public interface CompilationService {
      */
     List<CompilationDto> getAll(
             Boolean pinned,
-            @Min(value = 0, message = "The from field cannot be negative")
             Integer from,
-            @Min(value = 1, message = "The size field cannot be negative or zero")
             Integer size
     );
 

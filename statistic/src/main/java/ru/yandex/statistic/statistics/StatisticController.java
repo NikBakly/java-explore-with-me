@@ -3,6 +3,7 @@ package ru.yandex.statistic.statistics;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -11,7 +12,7 @@ public class StatisticController {
     private final StatisticService statisticService;
 
     @PostMapping("/hit")
-    void saveStatistic(@RequestBody EndpointHit endpointHit) {
+    void saveStatistic(@Valid @RequestBody EndpointHit endpointHit) {
         statisticService.saveStatistic(endpointHit);
     }
 

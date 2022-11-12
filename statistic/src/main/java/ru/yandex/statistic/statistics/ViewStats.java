@@ -1,10 +1,14 @@
 package ru.yandex.statistic.statistics;
 
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
 @Builder
-@Data
+@Getter
+@Setter
+@ToString
 public class ViewStats {
     // Название сервиса
     private String app;

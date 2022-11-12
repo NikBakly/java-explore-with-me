@@ -12,12 +12,7 @@ import ru.yandex.main.category.CategoryRepository;
 import ru.yandex.main.event.*;
 import ru.yandex.main.exception.BadRequestException;
 import ru.yandex.main.exception.NotFoundException;
-import ru.yandex.main.statistic.Client;
-import ru.yandex.main.statistic.ViewStats;
-import ru.yandex.main.user.request.RequestService;
 
-import javax.validation.Valid;
-import javax.validation.constraints.Min;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,34 +26,31 @@ public class UserServiceImpl implements UserService {
     private final CategoryRepository categoryRepository;
     private final UserRepository userRepository;
 
-    private final RequestService requestService;
-    private final Client client;
+    private final EventServiceImpl eventService;
+
+    private static final Integer TWO_HOUR = 2;
 
     @Override
     @Transactional(readOnly = true)
     public List<EventShortDto> findUserEventsById(Long userId,
-                                                  @Min(value = 0, message = "The from field cannot be negative")
                                                   Integer from,
-                                                  @Min(value = 1, message = "The size field cannot be negative or zero")
                                                   Integer size) {
         Pageable pageable = PageRequest.of(from, size);
         List<Event> events = eventRepository.findAllByInitiatorId(userId, pageable).getContent();
-        List<EventShortDto> result = new ArrayList<>();
-        events.forEach(event -> {
-            EventShortDto eventShortDto = EventMapper
-                    .toEventShortDto(
-                            event,
-                            getViews(event.getId()),
-                            getConfirmedRequests(event.getId()));
-            result.add(eventShortDto);
-        });
+        List<Long> eventIds = new ArrayList<>();
+        events.forEach(event -> eventIds.add(event.getId()));
+        List<EventShortDto> result = EventMapper
+                .toEventsShortDto(
+                        events,
+                        eventService.getHistFromViewStats(eventIds),
+                        eventService.getConfirmedRequest(eventIds));
         log.info("User's events were found successfully");
         return result;
     }
 
     @Override
     @Transactional
-    public EventFullDto updateUserEventById(Long userId, @Valid UpdateEventRequest updateEventRequest) {
+    public EventFullDto updateUserEventById(Long userId, UpdateEventRequest updateEventRequest) {
         Category newCategory = findAndCheckCategoryById(updateEventRequest.getCategory());
         // дата и время на которые намечено событие не может быть раньше, чем через два часа от текущего момента
         if (updateEventRequest.getEventDate() != null) {
@@ -98,12 +90,16 @@ public class UserServiceImpl implements UserService {
         }
         eventRepository.save(foundEvent);
         log.info("Event with id={} was updated successfully", foundEvent.getId());
-        return EventMapper.toEventFullDto(foundEvent, getViews(foundEvent.getId()), getConfirmedRequests(foundEvent.getId()));
+        return EventMapper
+                .toEventFullDto(
+                        foundEvent,
+                        eventService.getHistFromViewStats(foundEvent.getId()),
+                        eventService.getConfirmedRequests(foundEvent.getId()));
     }
 
     @Override
     @Transactional
-    public EventFullDto createUserEvent(Long userId, @Valid NewEventDto newEventDto) {
+    public EventFullDto createUserEvent(Long userId, NewEventDto newEventDto) {
         User foundUser = findAndCheckUserById(userId);
         Category foundCategory = findAndCheckCategoryById(newEventDto.getCategory());
         // дата и время на которые намечено событие не может быть раньше, чем через два часа от текущего момента
@@ -119,7 +115,11 @@ public class UserServiceImpl implements UserService {
     public EventFullDto findUserEventByUserIdAndByEventId(Long userId, Long eventId) {
         Event foundEvent = findAndCheckEventByIdAndUserId(eventId, userId);
         log.info("User's event with id={} and user with id={} were found successfully", eventId, userId);
-        return EventMapper.toEventFullDto(foundEvent, getViews(eventId), getConfirmedRequests(eventId));
+        return EventMapper
+                .toEventFullDto(
+                        foundEvent,
+                        eventService.getHistFromViewStats(eventId),
+                        eventService.getConfirmedRequests(eventId));
     }
 
     @Override
@@ -132,7 +132,11 @@ public class UserServiceImpl implements UserService {
         }
         foundEvent.setState(State.CANCELED);
         eventRepository.save(foundEvent);
-        return EventMapper.toEventFullDto(foundEvent, getViews(eventId), getConfirmedRequests(eventId));
+        return EventMapper
+                .toEventFullDto(
+                        foundEvent,
+                        eventService.getHistFromViewStats(eventId),
+                        eventService.getConfirmedRequests(eventId));
     }
 
     private Event findAndCheckEventByIdAndUserId(Long eventId, Long userId) {
@@ -176,30 +180,9 @@ public class UserServiceImpl implements UserService {
 
     private static void checkTime(String dateTimeString) {
         LocalDateTime dateTime = LocalDateTime.parse(dateTimeString, GlobalVariable.TIME_FORMATTER);
-        if (!dateTime.isAfter(LocalDateTime.now().plusHours(2))) {
+        if (!dateTime.isAfter(LocalDateTime.now().plusHours(TWO_HOUR))) {
             log.warn("The time is incorrect when interacting with the event");
             throw new BadRequestException("TThe time is incorrect when interacting with the event");
         }
-    }
-
-    // возврат количества просмотров у события
-    private Long getViews(Long eventId) {
-        String uri = "/event/" + eventId;
-        Optional<ViewStats> viewStats = client.findByUrl(
-                        LocalDateTime.now().minusYears(5).format(GlobalVariable.TIME_FORMATTER),
-                        LocalDateTime.now().plusYears(5).format(GlobalVariable.TIME_FORMATTER),
-                        uri,
-                        false)
-                .stream().findFirst();
-        if (viewStats.isEmpty()) {
-            log.info("Statistics for event with id={} were not found so 0 views are returned", eventId);
-            return 0L;
-        }
-        return viewStats.get().getHits();
-    }
-
-    // возврат количество подтвержденных заявок по идентификатору события
-    private Long getConfirmedRequests(Long eventId) {
-        return requestService.getNumberOfConfirmedRequests(eventId);
     }
 }

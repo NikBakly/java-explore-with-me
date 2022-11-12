@@ -25,7 +25,7 @@ public class NewEventDto {
     private String annotation;
 
     // id категории к которой относится событие
-    @NotBlank(message = "The category field cannot be undefined")
+    @NotNull(message = "The category field cannot be undefined")
     private Long category;
 
     // Полное описание события

@@ -7,20 +7,13 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.annotation.Validated;
 import ru.yandex.main.GlobalVariable;
 import ru.yandex.main.category.Category;
 import ru.yandex.main.category.CategoryRepository;
 import ru.yandex.main.event.*;
 import ru.yandex.main.exception.BadRequestException;
 import ru.yandex.main.exception.NotFoundException;
-import ru.yandex.main.statistic.Client;
-import ru.yandex.main.statistic.ViewStats;
-import ru.yandex.main.user.comment.Comment;
-import ru.yandex.main.user.comment.CommentRepository;
-import ru.yandex.main.user.request.RequestService;
 
-import javax.validation.Valid;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,35 +22,29 @@ import java.util.Optional;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-@Validated
 public class AdminEventServiceImpl implements AdminEventService {
     private final EventRepository eventRepository;
     private final CategoryRepository categoryRepository;
     private final CommentRepository commentRepository;
 
-    private final RequestService requestService;
-    private final Client client;
+    private final EventServiceImpl eventService;
+
+    private static final Integer ONE_HOUR = 1;
 
     @Override
     @Transactional(readOnly = true)
-    public List<EventFullDto> findEvents(@Valid EventFilterAdmin eventFilterAdmin) {
+    public List<EventFullDto> findEvents(EventFilterAdmin eventFilterAdmin) {
         Pageable pageable = PageRequest.of(eventFilterAdmin.getFrom(), eventFilterAdmin.getSize());
-        List<Event> foundEvents = eventRepository.findAll(formatExpression(eventFilterAdmin), pageable).getContent();
-
-        List<EventFullDto> eventsFullDto = new ArrayList<>();
-
-        for (Event foundEvent : foundEvents) {
-            EventFullDto eventFullDto =
-                    EventMapper
-                            .toEventFullDto(
-                                    foundEvent,
-                                    getViews(foundEvent.getId()),
-                                    getConfirmedRequests(foundEvent.getId()));
-
-            eventsFullDto.add(eventFullDto);
-        }
+        List<Event> foundEvent = eventRepository.findAll(formatExpression(eventFilterAdmin), pageable).getContent();
+        List<Long> eventIds = new ArrayList<>();
+        foundEvent.forEach(event -> eventIds.add(event.getId()));
+        List<EventFullDto> result = EventMapper
+                .toEventsFullDto(
+                        foundEvent,
+                        eventService.getHistFromViewStats(eventIds),
+                        eventService.getConfirmedRequest(eventIds));
         log.info("Events were found successfully");
-        return eventsFullDto;
+        return result;
     }
 
     @Override
@@ -94,7 +81,11 @@ public class AdminEventServiceImpl implements AdminEventService {
             foundEvent.setTitle(updateEventRequest.getTitle());
         }
         eventRepository.save(foundEvent);
-        return EventMapper.toEventFullDto(foundEvent, getViews(eventId), getConfirmedRequests(eventId));
+        return EventMapper
+                .toEventFullDto(
+                        foundEvent,
+                        eventService.getHistFromViewStats(eventId),
+                        eventService.getConfirmedRequests(eventId));
     }
 
     @Override
@@ -106,7 +97,11 @@ public class AdminEventServiceImpl implements AdminEventService {
             checkTimeWhenPublishEvent(foundEvent.getEventDate(), publishEvent);
             foundEvent.setPublishedOn(publishEvent);
             foundEvent.setState(State.PUBLISHED);
-            return EventMapper.toEventFullDto(foundEvent, getViews(eventId), getConfirmedRequests(eventId));
+            return EventMapper
+                    .toEventFullDto(
+                            foundEvent,
+                            eventService.getHistFromViewStats(eventId),
+                            eventService.getConfirmedRequests(eventId));
         } else {
             log.warn("The event must have the status 'PENDING' when it needs to be published.");
             throw new BadRequestException("The event must have the status 'PENDING' when it needs to be published.");
@@ -120,7 +115,11 @@ public class AdminEventServiceImpl implements AdminEventService {
         if (foundEvent.getState().equals(State.PENDING)) {
             foundEvent.setState(State.CANCELED);
             log.info("Event with id={} is rejected successfully", eventId);
-            return EventMapper.toEventFullDto(foundEvent, getViews(eventId), getConfirmedRequests(eventId));
+            return EventMapper
+                    .toEventFullDto(
+                            foundEvent,
+                            eventService.getHistFromViewStats(eventId),
+                            eventService.getConfirmedRequests(eventId));
         } else {
             log.warn("The event must have the status 'PENDING' when it needs to be rejected.");
             throw new BadRequestException("The event must have the status 'PENDING' when it needs to be rejected.");
@@ -191,30 +190,9 @@ public class AdminEventServiceImpl implements AdminEventService {
 
     //Проверка условия: дата начала события должна быть не ранее чем за час от даты публикации
     private void checkTimeWhenPublishEvent(LocalDateTime eventTime, LocalDateTime publishTime) {
-        if (!publishTime.plusHours(1).isBefore(eventTime)) {
+        if (!publishTime.plusHours(ONE_HOUR).isBefore(eventTime)) {
             log.warn("At least one hour must pass from publish time to event time");
             throw new NotFoundException("At least one hour must pass from publish time to event time");
         }
-    }
-
-    // возврат количества просмотров у события
-    private Long getViews(Long eventId) {
-        String uri = "/event/" + eventId;
-        Optional<ViewStats> viewStats = client.findByUrl(
-                        LocalDateTime.now().minusYears(5).format(GlobalVariable.TIME_FORMATTER),
-                        LocalDateTime.now().plusYears(5).format(GlobalVariable.TIME_FORMATTER),
-                        uri,
-                        false)
-                .stream().findFirst();
-        if (viewStats.isEmpty()) {
-            log.info("Statistics for event with id={} were not found so 0 views are returned", eventId);
-            return 0L;
-        }
-        return viewStats.get().getHits();
-    }
-
-    // возврат количество подтвержденных заявок по идентификатору события
-    private Long getConfirmedRequests(Long eventId) {
-        return requestService.getNumberOfConfirmedRequests(eventId);
     }
 }

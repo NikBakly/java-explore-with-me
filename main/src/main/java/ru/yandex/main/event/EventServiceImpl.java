@@ -3,6 +3,7 @@ package ru.yandex.main.event;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -29,17 +30,23 @@ public class EventServiceImpl implements EventService {
     private final RequestService requestService;
     private final Client client;
 
+    @Value("${main-service.name}")
+    private static String MAIN_APP;
+
     @Override
     @Transactional(readOnly = true)
     public List<EventShortDto> getAll(EventFilter eventFilter, HttpServletRequest request) {
         Pageable pageable = PageRequest.of(
                 eventFilter.getFrom(),
                 eventFilter.getSize());
-        List<Event> foundEvents = eventRepository.findAll(formatExpression(eventFilter), pageable).getContent();
-        List<EventShortDto> result = new ArrayList<>();
-        foundEvents.forEach(event -> result.add(EventMapper.toEventShortDto(event, getViews(event.getId()), getConfirmedRequests(event.getId()))));
-        sortEvents(result, eventFilter.getSort());
-        createStatistic(GlobalVariable.MAIN_APP, request.getRequestURI(), request.getRemoteAddr());
+        List<Event> foundEvent = eventRepository.findAll(formatExpression(eventFilter), pageable).getContent();
+        List<Long> eventIds = new ArrayList<>();
+        foundEvent.forEach(event -> eventIds.add(event.getId()));
+        List<EventShortDto> result = EventMapper.toEventsShortDto(foundEvent, getHistFromViewStats(eventIds), getConfirmedRequest(eventIds));
+        if (eventFilter.getSort() != null) {
+            sortEvents(result, eventFilter.getSort());
+        }
+        createStatistic(MAIN_APP, request.getRequestURI(), request.getRemoteAddr());
         log.info("Events were got all successfully");
         return result;
     }
@@ -53,8 +60,8 @@ public class EventServiceImpl implements EventService {
             throw new NotFoundException("Event with id=" + eventId + " was not found.");
         }
         log.info("Event with id={} was found successfully", eventId);
-        createStatistic(GlobalVariable.MAIN_APP, request.getRequestURI(), request.getRemoteAddr());
-        return EventMapper.toEventFullDto(foundEvent.get(), getViews(eventId), getConfirmedRequests(eventId));
+        createStatistic(MAIN_APP, request.getRequestURI(), request.getRemoteAddr());
+        return EventMapper.toEventFullDto(foundEvent.get(), getHistFromViewStats(eventId), getConfirmedRequests(eventId));
     }
 
     //  Формирование условия для запроса в БД
@@ -117,11 +124,11 @@ public class EventServiceImpl implements EventService {
     }
 
     // возврат количества просмотров у события
-    private Long getViews(Long eventId) {
+    public Long getHistFromViewStats(Long eventId) {
         String uri = "/event/" + eventId;
         Optional<ViewStats> viewStats = client.findByUrl(
-                        LocalDateTime.now().minusYears(5).format(GlobalVariable.TIME_FORMATTER),
-                        LocalDateTime.now().plusYears(5).format(GlobalVariable.TIME_FORMATTER),
+                        LocalDateTime.now().minusYears(GlobalVariable.FIVE_YEARS).format(GlobalVariable.TIME_FORMATTER),
+                        LocalDateTime.now().plusYears(GlobalVariable.FIVE_YEARS).format(GlobalVariable.TIME_FORMATTER),
                         uri,
                         false)
                 .stream().findFirst();
@@ -132,9 +139,38 @@ public class EventServiceImpl implements EventService {
         return viewStats.get().getHits();
     }
 
+    public List<Long> getHistFromViewStats(List<Long> eventIds) {
+        List<Long> hits = new ArrayList<>();
+        StringBuilder uri = new StringBuilder();
+        for (int i = 0; i < eventIds.size(); i++) {
+            if (i == eventIds.size() - 1) {
+                uri.append("/events/").append(eventIds.get(i));
+            } else {
+                uri.append("/events/").append(eventIds.get(i)).append(",");
+            }
+        }
+        List<ViewStats> viewStats = client.findByUrl(
+                LocalDateTime.now().minusYears(GlobalVariable.FIVE_YEARS).format(GlobalVariable.TIME_FORMATTER),
+                LocalDateTime.now().plusYears(GlobalVariable.FIVE_YEARS).format(GlobalVariable.TIME_FORMATTER),
+                uri.toString(),
+                false);
+        if (viewStats.isEmpty()) {
+            // заполняем пустые места нулями
+            eventIds.forEach(aLong -> hits.add(0L));
+        } else {
+            // заполняем данными
+            viewStats.forEach(viewStats1 -> hits.add(viewStats1.getHits()));
+        }
+        return hits;
+    }
+
     // возврат количество подтвержденных заявок по идентификатору события
-    private Long getConfirmedRequests(Long eventId) {
+    public Long getConfirmedRequests(Long eventId) {
         return requestService.getNumberOfConfirmedRequests(eventId);
+    }
+
+    public List<Long> getConfirmedRequest(List<Long> eventIds) {
+        return requestService.getNumberOfConfirmedRequests(eventIds);
     }
 
 }

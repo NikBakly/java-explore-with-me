@@ -1,15 +1,15 @@
 package ru.yandex.main.user.request;
 
-import lombok.Builder;
-import lombok.Data;
-import lombok.ToString;
+import lombok.*;
 
 /**
  * Заявка на участие в событии
  */
-@Data
+@Getter
+@Setter
 @Builder
-@ToString
+@AllArgsConstructor
+@NoArgsConstructor
 public class ParticipationRequestDto {
     // Дата и время создания заявки
     String created;

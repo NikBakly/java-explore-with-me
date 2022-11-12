@@ -5,17 +5,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.validation.annotation.Validated;
-import ru.yandex.main.GlobalVariable;
+import ru.yandex.main.event.Event;
 import ru.yandex.main.event.EventMapper;
+import ru.yandex.main.event.EventServiceImpl;
 import ru.yandex.main.event.EventShortDto;
 import ru.yandex.main.exception.NotFoundException;
-import ru.yandex.main.statistic.Client;
-import ru.yandex.main.statistic.ViewStats;
-import ru.yandex.main.user.request.RequestService;
 
-import javax.validation.constraints.Min;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -23,18 +18,14 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-@Validated
 public class CompilationServiceImpl implements CompilationService {
     private final CompilationRepository compilationRepository;
 
-    private final RequestService requestService;
-    private final Client client;
+    private final EventServiceImpl eventService;
 
     @Override
     public List<CompilationDto> getAll(Boolean pinned,
-                                       @Min(value = 0, message = "The from field cannot be negative")
                                        Integer from,
-                                       @Min(value = 1, message = "The size field cannot be negative or zero")
                                        Integer size) {
         Pageable pageable = PageRequest.of(from, size);
         List<Compilation> compilations = compilationRepository.findAllByPinned(pinned, pageable).getContent();
@@ -51,8 +42,8 @@ public class CompilationServiceImpl implements CompilationService {
         List<EventShortDto> eventsShortDto = EventMapper
                 .toEventsShortDto(
                         foundCompilation.get(),
-                        getViews(foundCompilation.get().getId()),
-                        getConfirmedRequests(foundCompilation.get().getId()));
+                        eventService.getHistFromViewStats(foundCompilation.get().getId()),
+                        eventService.getConfirmedRequests(foundCompilation.get().getId()));
         return CompilationMapper.toCompilationDto(foundCompilation.get(), eventsShortDto);
     }
 
@@ -60,34 +51,17 @@ public class CompilationServiceImpl implements CompilationService {
     private List<CompilationDto> toCompilationsDto(List<Compilation> compilations) {
         List<CompilationDto> result = new ArrayList<>();
         compilations.forEach(compilation -> {
+            List<Long> eventIds = new ArrayList<>();
+            List<Event> events = compilation.getEvents();
+            events.forEach(event -> eventIds.add(event.getId()));
             List<EventShortDto> eventsShortDto =
-                    EventMapper.toEventsShortDto(
-                            compilation,
-                            getViews(compilation.getId()),
-                            getConfirmedRequests(compilation.getId()));
+                    EventMapper
+                            .toEventsShortDto(
+                                    events,
+                                    eventService.getHistFromViewStats(eventIds),
+                                    eventService.getConfirmedRequest(eventIds));
             result.add(CompilationMapper.toCompilationDto(compilation, eventsShortDto));
         });
         return result;
-    }
-
-    // возврат количества просмотров у события
-    private Long getViews(Long eventId) {
-        String uri = "/event/" + eventId;
-        Optional<ViewStats> viewStats = client.findByUrl(
-                        LocalDateTime.now().minusYears(5).format(GlobalVariable.TIME_FORMATTER),
-                        LocalDateTime.now().plusYears(5).format(GlobalVariable.TIME_FORMATTER),
-                        uri,
-                        false)
-                .stream().findFirst();
-        if (viewStats.isEmpty()) {
-            log.info("Statistics for event with id={} were not found so 0 views are returned", eventId);
-            return 0L;
-        }
-        return viewStats.get().getHits();
-    }
-
-    // возврат количество подтвержденных заявок по идентификатору события
-    private Long getConfirmedRequests(Long eventId) {
-        return requestService.getNumberOfConfirmedRequests(eventId);
     }
 }

@@ -5,6 +5,8 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.main.compilation.CompilationDto;
 import ru.yandex.main.compilation.NewCompilationDto;
 
+import javax.validation.Valid;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/admin/compilations")
@@ -13,7 +15,7 @@ public class AdminCompilationController {
 
     @PostMapping
     public CompilationDto createCompilation(
-            @RequestBody NewCompilationDto compilation
+            @Valid @RequestBody NewCompilationDto compilation
     ) {
         return adminCompilationService.createCompilation(compilation);
     }

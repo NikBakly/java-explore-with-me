@@ -6,6 +6,7 @@ import ru.yandex.main.user.User;
 import ru.yandex.main.user.comment.Comment;
 
 import javax.persistence.*;
+import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +25,7 @@ public class Event {
     private Long id;
 
     // Краткое описание события
+    @Size(max = 2000)
     private String annotation;
 
     // id категории к которой относится событие
@@ -39,6 +41,7 @@ public class Event {
     private User initiator;
 
     // Полное описание события
+    @Size(max = 7000)
     private String description;
 
     // Дата и время на которые намечено событие
@@ -78,6 +81,7 @@ public class Event {
     private State state = State.PENDING;
 
     // Заголовок события
+    @Size(max = 120)
     private String title;
 
     @OneToMany(mappedBy = "event")
