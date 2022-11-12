@@ -13,6 +13,8 @@ import ru.yandex.main.category.CategoryRepository;
 import ru.yandex.main.event.*;
 import ru.yandex.main.exception.BadRequestException;
 import ru.yandex.main.exception.NotFoundException;
+import ru.yandex.main.user.comment.Comment;
+import ru.yandex.main.user.comment.CommentRepository;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -25,6 +27,7 @@ import java.util.Optional;
 public class AdminEventServiceImpl implements AdminEventService {
     private final EventRepository eventRepository;
     private final CategoryRepository categoryRepository;
+    private final CommentRepository commentRepository;
 
     private final EventServiceImpl eventService;
 
@@ -125,6 +128,13 @@ public class AdminEventServiceImpl implements AdminEventService {
         }
     }
 
+    @Override
+    public void deleteCommentFromEvent(Long commentId) {
+        Comment foundComment = findAndCheckCommentById(commentId);
+        commentRepository.delete(foundComment);
+        log.info("Comment with id={} was deleted by admin successfully", commentId);
+    }
+
     // Создания условия и возврат его для последующего запроса
     private BooleanExpression formatExpression(EventFilterAdmin eventFilterAdmin) {
         //Начальное условие
@@ -158,6 +168,16 @@ public class AdminEventServiceImpl implements AdminEventService {
             throw new NotFoundException("Event with id=" + eventId + " was not found.");
         }
         return foundEvent.get();
+    }
+
+    //
+    private Comment findAndCheckCommentById(Long commentId) {
+        Optional<Comment> foundComment = commentRepository.findById(commentId);
+        if (foundComment.isEmpty()) {
+            log.warn("Comment with id={} was not found", commentId);
+            throw new NotFoundException("Comment with id=" + commentId + " was not found");
+        }
+        return foundComment.get();
     }
 
     // проверка на существования события и возврат, если существует

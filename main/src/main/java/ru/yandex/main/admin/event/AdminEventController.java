@@ -78,4 +78,11 @@ public class AdminEventController {
         );
     }
 
+    @DeleteMapping("/comments/{commentId}")
+    public void deleteComment(
+            @PathVariable Long commentId
+    ) {
+        adminEventService.deleteCommentFromEvent(commentId);
+    }
+
 }

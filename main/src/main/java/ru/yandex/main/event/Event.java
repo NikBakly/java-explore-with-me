@@ -1,21 +1,24 @@
 package ru.yandex.main.event;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import ru.yandex.main.category.Category;
 import ru.yandex.main.user.User;
+import ru.yandex.main.user.comment.Comment;
 
 import javax.persistence.*;
 import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "events")
 @Getter
 @Setter
+@Builder
 @ToString
+@RequiredArgsConstructor
+@AllArgsConstructor
 public class Event {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -80,4 +83,8 @@ public class Event {
     // Заголовок события
     @Size(max = 120)
     private String title;
+
+    @OneToMany(mappedBy = "event")
+    @ToString.Exclude
+    private List<Comment> comments = new ArrayList<>();
 }
