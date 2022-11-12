@@ -9,6 +9,7 @@ import ru.yandex.main.category.CategoryMapper;
 import ru.yandex.main.compilation.Compilation;
 import ru.yandex.main.user.User;
 import ru.yandex.main.user.UserMapper;
+import ru.yandex.main.user.comment.CommentMapper;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -52,6 +53,7 @@ public final class EventMapper {
                 .initiator(UserMapper.toUserShortDto(event.getInitiator()))
                 .confirmedRequests(confirmedRequests)
                 .views(views)
+                .comments(CommentMapper.toViewCommentsDto(event.getComments()))
                 .build();
     }
 
@@ -75,6 +77,7 @@ public final class EventMapper {
         result.setState(event.getState());
         result.setTitle(event.getTitle());
         result.setViews(views);
+        result.setComments(CommentMapper.toViewCommentsDto(event.getComments()));
 
         return result;
     }

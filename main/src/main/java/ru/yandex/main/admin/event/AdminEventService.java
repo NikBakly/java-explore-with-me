@@ -54,4 +54,14 @@ public interface AdminEventService {
     EventFullDto rejectedEvent(
             Long eventId
     );
+
+    /**
+     * Удаление комментария у события админом
+     *
+     * @param commentId идентификатор комментария
+     * @param eventId   идентификатор события
+     */
+    void deleteCommentFromEvent(
+            Long commentId
+    );
 }

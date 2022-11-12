@@ -6,6 +6,10 @@ import ru.yandex.main.event.EventFullDto;
 import ru.yandex.main.event.EventShortDto;
 import ru.yandex.main.event.NewEventDto;
 import ru.yandex.main.event.UpdateEventRequest;
+import ru.yandex.main.user.comment.CommentService;
+import ru.yandex.main.user.comment.NewCommentDto;
+import ru.yandex.main.user.comment.UpdateCommentDto;
+import ru.yandex.main.user.comment.ViewCommentDto;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
@@ -16,6 +20,7 @@ import java.util.List;
 @RequestMapping("/users/{userId}")
 public class UserController {
     private final UserService userService;
+    private final CommentService commentService;
 
     @GetMapping("/events")
     public List<EventShortDto> findUserEventsByUserId(
@@ -61,5 +66,28 @@ public class UserController {
             @PathVariable Long eventId
     ) {
         return userService.eventCancellation(userId, eventId);
+    }
+
+    @PostMapping("/events/{eventId}/comments")
+    public ViewCommentDto addComment(@PathVariable Long userId,
+                                     @PathVariable Long eventId,
+                                     @RequestBody NewCommentDto newCommentDto) {
+        return commentService.addComment(userId, eventId, newCommentDto);
+    }
+
+    @PatchMapping("/events/{eventId}/comments/{commentId}")
+    public ViewCommentDto updateComment(@PathVariable Long userId,
+                                        @PathVariable Long eventId,
+                                        @PathVariable Long commentId,
+                                        @RequestBody UpdateCommentDto updateCommentDto) {
+        return commentService.updateComment(userId, eventId, commentId, updateCommentDto);
+    }
+
+
+    @DeleteMapping("/events/{eventId}/comments/{commentId}")
+    public void deleteComment(@PathVariable Long userId,
+                              @PathVariable Long eventId,
+                              @PathVariable Long commentId) {
+        commentService.deleteCommentById(userId, eventId, commentId);
     }
 }
