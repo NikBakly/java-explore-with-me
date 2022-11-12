@@ -13,6 +13,8 @@ import ru.yandex.main.category.CategoryRepository;
 import ru.yandex.main.event.*;
 import ru.yandex.main.exception.BadRequestException;
 import ru.yandex.main.exception.NotFoundException;
+import ru.yandex.main.user.comment.Comment;
+import ru.yandex.main.user.comment.CommentRepository;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
